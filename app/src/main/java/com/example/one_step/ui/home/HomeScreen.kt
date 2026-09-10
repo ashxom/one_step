@@ -82,7 +82,11 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             HeroCard()
-            IngestionSection(onCameraClick = { onNavigate(AppDestination.Camera.route) })
+            IngestionSection(
+                onCameraClick = { onNavigate(AppDestination.Camera.route) },
+                onFileClick = { onNavigate(AppDestination.FileImport.route) },
+                onDirectInputClick = { onNavigate(AppDestination.DirectInput.route) },
+            )
             ActiveDocumentSection(
                 state = state,
                 onResume = { onNavigate(AppDestination.Guide.route) },
@@ -167,7 +171,11 @@ private fun HeroCard() {
 }
 
 @Composable
-private fun IngestionSection(onCameraClick: () -> Unit) {
+private fun IngestionSection(
+    onCameraClick: () -> Unit,
+    onFileClick: () -> Unit,
+    onDirectInputClick: () -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("새로운 안내문 넣기", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted, modifier = Modifier.padding(horizontal = 4.dp))
         Surface(
@@ -196,6 +204,7 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
                 icon = Icons.Default.FolderOpen,
                 accent = OneStepBlueSoft,
                 modifier = Modifier.weight(1f),
+                onClick = onFileClick,
             )
             QuickActionCard(
                 title = "직접 입력하기",
@@ -203,6 +212,7 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
                 icon = Icons.Default.EditNote,
                 accent = OneStepSuccessSoft,
                 modifier = Modifier.weight(1f),
+                onClick = onDirectInputClick,
             )
         }
     }
@@ -215,9 +225,10 @@ private fun QuickActionCard(
     icon: ImageVector,
     accent: Color,
     modifier: Modifier,
+    onClick: () -> Unit,
 ) {
     Card(
-        modifier = modifier.heightIn(min = 126.dp),
+        modifier = modifier.heightIn(min = 126.dp).clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
