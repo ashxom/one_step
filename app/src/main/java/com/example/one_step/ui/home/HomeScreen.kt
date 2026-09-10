@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -247,7 +248,15 @@ private fun QuickActionCard(
 private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("◉ 진행 중인 안내문", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(R.drawable.ic_pending_actions),
+                    contentDescription = "진행 중인 안내문",
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text("진행 중인 안내문", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
+            }
             Text("1개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
         }
         Card(colors = CardDefaults.cardColors(containerColor = OneStepSurface), shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
@@ -315,7 +324,12 @@ private fun HowItWorksCard() {
 private fun TrustMessage() {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(color = OneStepBlueSoft, shape = CircleShape, modifier = Modifier.size(32.dp)) {
-            Text("♡", modifier = Modifier.padding(top = 4.dp), color = OneStepBlue, style = MaterialTheme.typography.titleMedium)
+            Icon(
+                imageVector = Icons.Outlined.FavoriteBorder,
+                contentDescription = "신뢰와 응원",
+                tint = OneStepBlue,
+                modifier = Modifier.padding(8.dp),
+            )
         }
         Spacer(Modifier.height(8.dp))
         Text("모든 사람이 정보를 쉽게 이해하고\n자신 있게 행동할 수 있도록", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
