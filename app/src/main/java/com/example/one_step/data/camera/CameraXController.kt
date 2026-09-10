@@ -16,7 +16,6 @@ import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-/** Keeps CameraX setup and capture details outside of the Compose UI. */
 class CameraXController(context: Context) {
     private val appContext = context.applicationContext
     private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()

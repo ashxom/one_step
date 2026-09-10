@@ -8,7 +8,6 @@ import com.tom_roush.pdfbox.text.PDFTextStripper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Interface leaves room for a rendered-page OCR implementation for scanned PDFs later. */
 interface PdfTextExtractor {
     suspend fun extract(uri: Uri): Result<String>
 }

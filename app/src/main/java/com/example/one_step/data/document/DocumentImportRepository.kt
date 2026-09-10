@@ -18,7 +18,6 @@ interface DocumentImportRepository {
     fun close()
 }
 
-/** Routes images through the existing ML Kit OCR and text PDFs through a replaceable extractor. */
 class DefaultDocumentImportRepository(
     context: Context,
     private val imageOcr: TextRecognitionRepository,

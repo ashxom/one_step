@@ -2,7 +2,6 @@ package com.example.one_step.ui.home
 
 import androidx.lifecycle.ViewModel
 
-/** Presentation-only state for Issue #1. Data sources are connected in later issues. */
 class HomeViewModel : ViewModel() {
     val uiState = HomeUiState()
 }
