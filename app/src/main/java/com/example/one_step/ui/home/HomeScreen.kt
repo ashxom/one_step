@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -32,14 +33,12 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -196,7 +195,6 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
                 icon = Icons.Default.FolderOpen,
                 accent = OneStepBlueSoft,
                 modifier = Modifier.weight(1f),
-                enabled = false,
             )
             QuickActionCard(
                 title = "직접 입력하기",
@@ -204,7 +202,6 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
                 icon = Icons.Default.EditNote,
                 accent = OneStepSuccessSoft,
                 modifier = Modifier.weight(1f),
-                enabled = false,
             )
         }
     }
@@ -217,12 +214,9 @@ private fun QuickActionCard(
     icon: ImageVector,
     accent: Color,
     modifier: Modifier,
-    enabled: Boolean,
 ) {
     Card(
-        onClick = {},
-        enabled = enabled,
-        modifier = modifier.heightIn(min = 126.dp).alpha(if (enabled) 1f else 0.6f),
+        modifier = modifier.heightIn(min = 126.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -276,7 +270,21 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     Text("마지막 단계: 참가 동의 서명하기", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
                     Text("66%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
-                LinearProgressIndicator(progress = { 0.66f }, color = OneStepBlue, trackColor = OneStepBlueSoft, modifier = Modifier.fillMaxWidth().height(10.dp).clip(CircleShape))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(CircleShape)
+                        .background(OneStepBlueSoft),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.66f)
+                            .fillMaxHeight()
+                            .clip(CircleShape)
+                            .background(OneStepBlue),
+                    )
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
