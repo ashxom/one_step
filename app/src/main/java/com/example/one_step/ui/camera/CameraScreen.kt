@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -70,6 +71,7 @@ import com.example.one_step.ui.theme.OneStepTextMuted
 @Composable
 fun CameraScreen(
     onBack: () -> Unit,
+    onDocumentText: (String) -> Unit,
     viewModel: CameraViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
     val context = LocalContext.current
@@ -98,7 +100,11 @@ fun CameraScreen(
 
     when {
         state.ocrState is OcrState.Loading -> OcrLoadingOverlay((state.ocrState as OcrState.Loading).step)
-        state.ocrState is OcrState.Success -> OcrSuccessScreen((state.ocrState as OcrState.Success).text, viewModel::reset)
+        state.ocrState is OcrState.Success -> OcrSuccessScreen(
+            text = (state.ocrState as OcrState.Success).text,
+            onAnalyze = onDocumentText,
+            onRetake = viewModel::reset,
+        )
         !hasCameraPermission -> PermissionScreen(
             errorMessage = (state.ocrState as? OcrState.Error)?.message,
             onRequestPermission = { permissionLauncher.launch(Manifest.permission.CAMERA) },
@@ -315,7 +321,7 @@ private fun PermissionScreen(
 }
 
 @Composable
-private fun OcrSuccessScreen(text: String, onRetake: () -> Unit) {
+private fun OcrSuccessScreen(text: String, onAnalyze: (String) -> Unit, onRetake: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.CheckCircle, null, tint = OneStepBlue, modifier = Modifier.size(28.dp))
@@ -326,7 +332,12 @@ private fun OcrSuccessScreen(text: String, onRetake: () -> Unit) {
         Surface(color = OneStepSurface, shape = RoundedCornerShape(16.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
             Text(text, color = OneStepText, modifier = Modifier.padding(18.dp).verticalScroll(rememberScrollState()))
         }
-        Button(onClick = onRetake, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+        Button(onClick = { onAnalyze(text) }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Text("분석 결과 확인")
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
+        }
+        OutlinedButton(onClick = onRetake, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
             Icon(Icons.Default.CameraAlt, null)
             Spacer(Modifier.width(8.dp))
             Text("다시 촬영하기")

@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

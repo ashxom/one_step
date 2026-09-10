@@ -15,6 +15,8 @@ sealed class AppDestination(
     data object History : AppDestination("history", "기록", Icons.AutoMirrored.Filled.Article)
     data object Settings : AppDestination("settings", "설정", Icons.Default.Settings)
     data object Camera : AppDestination("camera", "안내문 촬영")
+    data object FileImport : AppDestination("file-import", "파일 불러오기")
+    data object DirectInput : AppDestination("direct-input", "직접 입력")
     data object Analysis : AppDestination("analysis", "분석 결과")
     data object Guide : AppDestination("guide", "한걸음 안내")
 
