@@ -22,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Lightbulb
@@ -74,8 +73,8 @@ fun HomeScreen(
             modifier = Modifier
                 .widthIn(max = 600.dp)
                 .align(Alignment.CenterHorizontally)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             HeroCard()
             IngestionSection(onCameraClick = { onNavigate(AppDestination.Camera.route) })
@@ -95,27 +94,27 @@ private fun HomeTopBar() {
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .height(64.dp)
+            .height(76.dp)
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(color = OneStepBlue, shape = RoundedCornerShape(9.dp), modifier = Modifier.size(32.dp)) {
+        Surface(color = OneStepBlue, shape = RoundedCornerShape(10.dp), modifier = Modifier.size(38.dp)) {
             Image(
                 painter = painterResource(R.drawable.mascot_home),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.padding(3.dp),
+                modifier = Modifier.padding(4.dp),
             )
         }
         Spacer(Modifier.width(12.dp))
         Text("한걸음", style = MaterialTheme.typography.titleLarge, color = OneStepText)
         Spacer(Modifier.weight(1f))
-        Surface(color = OneStepBlue, shape = CircleShape, modifier = Modifier.size(32.dp)) {
-            Icon(
-                Icons.Default.CheckCircle,
-                contentDescription = "내 활동",
-                tint = Color.White,
-                modifier = Modifier.padding(8.dp),
+        Surface(color = OneStepBlue, shape = CircleShape, modifier = Modifier.size(40.dp)) {
+            Image(
+                painter = painterResource(R.drawable.ic_profile),
+                contentDescription = "프로필",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.padding(10.dp),
             )
         }
     }
@@ -125,11 +124,11 @@ private fun HomeTopBar() {
 private fun HeroCard() {
     Card(
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
     ) {
         Row(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(22.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -141,21 +140,25 @@ private fun HeroCard() {
                     Spacer(Modifier.width(4.dp))
                     Text("AI 쉬운 안내 도우미", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
-                Spacer(Modifier.height(13.dp))
+                Spacer(Modifier.height(14.dp))
                 Text("어려운 안내문도\n이제 쉽게,", style = MaterialTheme.typography.headlineSmall, color = OneStepText)
                 Row {
                     Text("한걸음씩", style = MaterialTheme.typography.headlineSmall, color = OneStepBlue, fontWeight = FontWeight.Bold)
                     Text(" 해봐요.", style = MaterialTheme.typography.headlineSmall, color = OneStepText)
                 }
-                Spacer(Modifier.height(8.dp))
-                Text("복잡한 서류, 공문서를 알기 쉬운 단계로 풀어드려요.", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    "복잡한 서류, 공문서를 알기 쉬운 단계로\n풀어드려요.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OneStepTextMuted,
+                )
             }
-            Spacer(Modifier.width(10.dp))
-            Surface(color = OneStepBlueBright, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(80.dp)) {
+            Spacer(Modifier.width(12.dp))
+            Surface(color = OneStepBlueBright, shape = RoundedCornerShape(20.dp), modifier = Modifier.size(92.dp)) {
                 Image(
                     painter = painterResource(R.drawable.mascot_home),
                     contentDescription = "한걸음 도우미",
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(10.dp),
                     contentScale = ContentScale.Fit,
                 )
             }
@@ -165,17 +168,17 @@ private fun HeroCard() {
 
 @Composable
 private fun IngestionSection(onCameraClick: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text("새로운 안내문 넣기", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted, modifier = Modifier.padding(horizontal = 4.dp))
         Surface(
             color = OneStepBlue,
-            shape = RoundedCornerShape(12.dp),
-            shadowElevation = 8.dp,
-            modifier = Modifier.fillMaxWidth().height(117.dp).clickable(onClick = onCameraClick),
+            shape = RoundedCornerShape(20.dp),
+            shadowElevation = 10.dp,
+            modifier = Modifier.fillMaxWidth().height(128.dp).clickable(onClick = onCameraClick),
         ) {
-            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = Color.White.copy(alpha = .2f), shape = RoundedCornerShape(12.dp), modifier = Modifier.size(56.dp)) {
-                    Icon(Icons.Default.CameraAlt, null, tint = Color.White, modifier = Modifier.padding(15.dp))
+            Row(modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+                Surface(color = Color.White.copy(alpha = .2f), shape = RoundedCornerShape(16.dp), modifier = Modifier.size(64.dp)) {
+                    Icon(Icons.Default.CameraAlt, null, tint = Color.White, modifier = Modifier.padding(16.dp))
                 }
                 Spacer(Modifier.width(16.dp))
                 Column {
@@ -183,10 +186,10 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
                     Text("카메라로 비추면 바로 쉬워져요", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = .8f))
                 }
                 Spacer(Modifier.weight(1f))
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White, modifier = Modifier.size(26.dp))
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             QuickActionCard("파일 보관함", "저장된 사진이나 pdf 불러오기", Icons.Default.FolderOpen, OneStepBlueSoft, Modifier.weight(1f))
             QuickActionCard("직접 입력하기", "글자 적거나 붙여넣기", Icons.Default.EditNote, OneStepSuccessSoft, Modifier.weight(1f))
         }
@@ -196,16 +199,16 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
 @Composable
 private fun QuickActionCard(title: String, description: String, icon: ImageVector, accent: Color, modifier: Modifier) {
     Card(
-        modifier = modifier.height(126.dp),
-        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.height(156.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Surface(color = accent, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(44.dp)) {
-                Icon(icon, null, tint = OneStepBlue, modifier = Modifier.padding(11.dp))
+        Column(Modifier.padding(16.dp)) {
+            Surface(color = accent, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(48.dp)) {
+                Icon(icon, null, tint = OneStepBlue, modifier = Modifier.padding(12.dp))
             }
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Text(title, style = MaterialTheme.typography.labelLarge, color = OneStepText)
             Text(description, style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted, maxLines = 2)
         }
@@ -214,16 +217,16 @@ private fun QuickActionCard(title: String, description: String, icon: ImageVecto
 
 @Composable
 private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("◉ 진행 중인 안내문", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
             Text("1개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
         }
-        Card(colors = CardDefaults.cardColors(containerColor = OneStepSurface), shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
-            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Card(colors = CardDefaults.cardColors(containerColor = OneStepSurface), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Default.School, null, tint = OneStepBlue, modifier = Modifier.padding(12.dp))
+                    Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(14.dp), modifier = Modifier.size(52.dp)) {
+                        Icon(Icons.Default.School, null, tint = OneStepBlue, modifier = Modifier.padding(13.dp))
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
@@ -242,8 +245,8 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     StepChip("✓ 2. 준비물 체크", OneStepSuccessSoft, OneStepSuccess)
                     StepChip("● 3. 동의 서명", OneStepBlueSoft, OneStepBlue)
                 }
-                Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().clickable(onClick = onResume)) {
-                    Row(Modifier.padding(vertical = 14.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().clickable(onClick = onResume)) {
+                    Row(Modifier.padding(vertical = 15.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                         Text("이어서 작성하기", style = MaterialTheme.typography.labelLarge, color = OneStepBlue)
                         Spacer(Modifier.width(8.dp))
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = OneStepBlue, modifier = Modifier.size(16.dp))
@@ -256,16 +259,16 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
 
 @Composable
 private fun StepChip(label: String, color: Color, textColor: Color) {
-    Text(label, style = MaterialTheme.typography.bodySmall, color = textColor, maxLines = 1, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(color).padding(horizontal = 7.dp, vertical = 6.dp))
+    Text(label, style = MaterialTheme.typography.bodySmall, color = textColor, maxLines = 1, modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(color).padding(horizontal = 8.dp, vertical = 7.dp))
 }
 
 @Composable
 private fun HowItWorksCard() {
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFFF2F3FF)).padding(20.dp),
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0xFFF2F3FF)).padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(color = Color.White, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(56.dp), shadowElevation = 1.dp) {
+        Surface(color = Color.White, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(60.dp), shadowElevation = 2.dp) {
             Icon(Icons.Default.Lightbulb, null, tint = Color(0xFF9A6800), modifier = Modifier.padding(14.dp))
         }
         Spacer(Modifier.width(16.dp))
