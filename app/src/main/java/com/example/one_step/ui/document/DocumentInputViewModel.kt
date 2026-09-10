@@ -33,11 +33,12 @@ class DocumentInputViewModel(application: Application) : AndroidViewModel(applic
         private set
 
     fun importUri(uri: Uri?, fileName: String? = null) {
+        if (!processing.compareAndSet(false, true)) return
         if (uri == null) {
             state = DocumentInputState.Error("파일 선택이 취소되었습니다.")
+            processing.set(false)
             return
         }
-        if (!processing.compareAndSet(false, true)) return
         viewModelScope.launch {
             try {
                 state = DocumentInputState.Loading(fileName)
