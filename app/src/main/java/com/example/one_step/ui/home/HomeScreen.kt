@@ -6,10 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -185,16 +189,39 @@ private fun IngestionSection(onCameraClick: () -> Unit) {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            QuickActionCard("파일 보관함", "저장된 사진이나 pdf 불러오기", Icons.Default.FolderOpen, OneStepBlueSoft, Modifier.weight(1f))
-            QuickActionCard("직접 입력하기", "글자 적거나 붙여넣기", Icons.Default.EditNote, OneStepSuccessSoft, Modifier.weight(1f))
+            QuickActionCard(
+                title = "파일 보관함",
+                description = "저장된 사진이나 pdf 불러오기",
+                icon = Icons.Default.FolderOpen,
+                accent = OneStepBlueSoft,
+                modifier = Modifier.weight(1f),
+                enabled = false,
+            )
+            QuickActionCard(
+                title = "직접 입력하기",
+                description = "글자 적거나 붙여넣기",
+                icon = Icons.Default.EditNote,
+                accent = OneStepSuccessSoft,
+                modifier = Modifier.weight(1f),
+                enabled = false,
+            )
         }
     }
 }
 
 @Composable
-private fun QuickActionCard(title: String, description: String, icon: ImageVector, accent: Color, modifier: Modifier) {
+private fun QuickActionCard(
+    title: String,
+    description: String,
+    icon: ImageVector,
+    accent: Color,
+    modifier: Modifier,
+    enabled: Boolean,
+) {
     Card(
-        modifier = modifier.height(126.dp),
+        onClick = {},
+        enabled = enabled,
+        modifier = modifier.heightIn(min = 126.dp).alpha(if (enabled) 1f else 0.6f),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -215,6 +242,7 @@ private fun QuickActionCard(title: String, description: String, icon: ImageVecto
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -240,7 +268,11 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     Text("66%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
                 LinearProgressIndicator(progress = { 0.66f }, color = OneStepBlue, trackColor = OneStepBlueSoft, modifier = Modifier.fillMaxWidth().height(10.dp).clip(CircleShape))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
                     StepChip("✓ 1. 일정 확인", OneStepSuccessSoft, OneStepSuccess)
                     StepChip("✓ 2. 준비물 체크", OneStepSuccessSoft, OneStepSuccess)
                     StepChip("● 3. 동의 서명", OneStepBlueSoft, OneStepBlue)
