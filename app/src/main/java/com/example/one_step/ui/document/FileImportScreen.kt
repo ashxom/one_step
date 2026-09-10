@@ -74,6 +74,8 @@ fun FileImportScreen(
         }
     }
 
+    val isLoading = state is DocumentInputState.Loading
+
     Column(
         modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -89,7 +91,11 @@ fun FileImportScreen(
                 }
                 Text("안내문 파일을 선택해 주세요", style = MaterialTheme.typography.titleMedium, color = OneStepText)
                 Text("PDF, JPG, JPEG, PNG 파일을 지원해요. 이미지 파일은 기존 OCR로 글자를 읽습니다.", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
-                Button(onClick = { picker.launch(arrayOf("application/pdf", "image/jpeg", "image/png")) }, modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { picker.launch(arrayOf("application/pdf", "image/jpeg", "image/png")) },
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     Icon(Icons.Default.FolderOpen, null)
                     Spacer(Modifier.width(8.dp))
                     Text("파일 선택")
