@@ -59,6 +59,7 @@ import com.example.one_step.ui.theme.OneStepSuccessSoft
 import com.example.one_step.ui.theme.OneStepSurface
 import com.example.one_step.ui.theme.OneStepText
 import com.example.one_step.ui.theme.OneStepTextMuted
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(
@@ -240,6 +241,12 @@ private fun QuickActionCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
+    val progress = if (state.totalSteps > 0) {
+        (state.completedSteps.toFloat() / state.totalSteps).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -268,7 +275,7 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("마지막 단계: 참가 동의 서명하기", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
-                    Text("66%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
+                    Text("${(progress * 100).roundToInt()}%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
                 Box(
                     modifier = Modifier
@@ -279,7 +286,7 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(0.66f)
+                            .fillMaxWidth(progress)
                             .fillMaxHeight()
                             .clip(CircleShape)
                             .background(OneStepBlue),
