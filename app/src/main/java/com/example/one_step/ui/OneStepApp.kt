@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.one_step.navigation.AppDestination
@@ -55,7 +56,10 @@ private fun OneStepBottomNavigation(
     currentRoute: String?,
     onNavigate: (AppDestination) -> Unit,
 ) {
-    NavigationBar(containerColor = OneStepBackground) {
+    NavigationBar(
+        containerColor = OneStepBackground,
+        tonalElevation = 0.dp,
+    ) {
         AppDestination.bottomNavigation.forEach { destination ->
             NavigationBarItem(
                 selected = currentRoute == destination.route,
