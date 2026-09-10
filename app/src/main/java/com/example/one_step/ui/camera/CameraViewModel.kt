@@ -12,6 +12,7 @@ import com.example.one_step.data.ocr.MlKitTextRecognitionRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 enum class OcrStep(val label: String) {
     READ_TEXT("문서 글자 또렷하게 읽기"),
@@ -36,6 +37,7 @@ data class CameraUiState(
 
 class CameraViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MlKitTextRecognitionRepository(application)
+    private val recognitionInProgress = AtomicBoolean(false)
 
     var uiState: CameraUiState by mutableStateOf(CameraUiState())
         private set
@@ -68,27 +70,31 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun recognize(uri: Uri) {
-        if (uiState.ocrState is OcrState.Loading) return
+        if (!recognitionInProgress.compareAndSet(false, true)) return
         viewModelScope.launch {
-            update { it.copy(selectedImageUri = uri, ocrState = OcrState.Loading(OcrStep.READ_TEXT)) }
-            delay(300)
-            update { it.copy(ocrState = OcrState.Loading(OcrStep.UNDERSTAND_CONTENT)) }
+            try {
+                update { it.copy(selectedImageUri = uri, ocrState = OcrState.Loading(OcrStep.READ_TEXT)) }
+                delay(300)
+                update { it.copy(ocrState = OcrState.Loading(OcrStep.UNDERSTAND_CONTENT)) }
 
-            val result = repository.recognize(uri)
-            update { it.copy(ocrState = OcrState.Loading(OcrStep.CREATE_STEPS)) }
-            delay(250)
+                val result = repository.recognize(uri)
+                update { it.copy(ocrState = OcrState.Loading(OcrStep.CREATE_STEPS)) }
+                delay(250)
 
-            result.fold(
-                onSuccess = { text -> update { it.copy(ocrState = OcrState.Success(text)) } },
-                onFailure = { error ->
-                    if (error is CancellationException) throw error
-                    val message = when (error) {
-                        is EmptyTextException -> error.message.orEmpty()
-                        else -> "이미지의 글자를 읽지 못했습니다. 다시 촬영해 주세요."
-                    }
-                    update { it.copy(ocrState = OcrState.Error(message)) }
-                },
-            )
+                result.fold(
+                    onSuccess = { text -> update { it.copy(ocrState = OcrState.Success(text)) } },
+                    onFailure = { error ->
+                        if (error is CancellationException) throw error
+                        val message = when (error) {
+                            is EmptyTextException -> error.message.orEmpty()
+                            else -> "이미지의 글자를 읽지 못했습니다. 다시 촬영해 주세요."
+                        }
+                        update { it.copy(ocrState = OcrState.Error(message)) }
+                    },
+                )
+            } finally {
+                recognitionInProgress.set(false)
+            }
         }
     }
 
