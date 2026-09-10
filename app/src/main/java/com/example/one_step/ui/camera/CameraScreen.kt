@@ -75,6 +75,7 @@ fun CameraScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val state = viewModel.uiState
+    var cameraBindAttempt by remember { mutableStateOf(0) }
     var hasCameraPermission by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
     }
@@ -108,12 +109,16 @@ fun CameraScreen(
             state = state,
             controller = controller,
             lifecycleOwner = lifecycleOwner,
+            bindAttempt = cameraBindAttempt,
             onReady = viewModel::onCameraReady,
             onCameraError = { viewModel.onCameraError("카메라를 시작하지 못했습니다.") },
             onCapture = { controller.capture(viewModel::recognize) { viewModel.onCaptureFailed("사진을 촬영하지 못했습니다.") } },
             onPickGallery = { galleryLauncher.launch("image/*") },
             onToggleFlash = { viewModel.toggleFlash(controller::setFlashEnabled) },
-            onRetry = viewModel::reset,
+            onRetry = {
+                viewModel.reset()
+                cameraBindAttempt++
+            },
             onBack = onBack,
         )
     }
@@ -124,6 +129,7 @@ private fun CameraContent(
     state: CameraUiState,
     controller: CameraXController,
     lifecycleOwner: LifecycleOwner,
+    bindAttempt: Int,
     onReady: (Boolean) -> Unit,
     onCameraError: () -> Unit,
     onCapture: () -> Unit,
@@ -133,7 +139,7 @@ private fun CameraContent(
     onBack: () -> Unit,
 ) {
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        CameraPreview(controller, lifecycleOwner, onReady, onCameraError)
+        CameraPreview(controller, lifecycleOwner, bindAttempt, onReady, onCameraError)
         if (state.ocrState is OcrState.Idle || state.ocrState is OcrState.Error) {
             GuideFrame()
             CameraControls(state.hasFlash, state.flashEnabled, state.cameraReady, onBack, onCapture, onPickGallery, onToggleFlash)
@@ -150,6 +156,7 @@ private fun CameraContent(
 private fun CameraPreview(
     controller: CameraXController,
     lifecycleOwner: LifecycleOwner,
+    bindAttempt: Int,
     onReady: (Boolean) -> Unit,
     onError: () -> Unit,
 ) {
@@ -164,7 +171,7 @@ private fun CameraPreview(
         },
         modifier = Modifier.fillMaxSize(),
     )
-    LaunchedEffect(previewView, lifecycleOwner) {
+    LaunchedEffect(previewView, lifecycleOwner, bindAttempt) {
         previewView?.let { view -> controller.bind(view, lifecycleOwner, onReady, { onError() }) }
     }
 }
