@@ -9,6 +9,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,9 +70,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.one_step.R
 import com.example.one_step.domain.model.AnalysisResult
@@ -168,10 +171,11 @@ private fun AnalysisSummaryScreen(
     Scaffold(
         containerColor = OneStepBackground,
         topBar = { AnalysisHeaderBar(onBack) },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(innerPadding).padding(horizontal = 20.dp, vertical = 12.dp).navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(innerPadding).padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SummaryStatusRow(onOriginalClick = { showOriginal = true })
             DocumentHero(result)
@@ -206,14 +210,14 @@ private fun AnalysisSummaryScreen(
 private fun SummaryStatusRow(onOriginalClick: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Surface(color = OneStepSuccessSoft, shape = CircleShape) {
-            Row(Modifier.padding(horizontal = 12.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.CheckCircle, null, tint = OneStepSuccess, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("AI 분석 완료", style = MaterialTheme.typography.bodySmall, color = OneStepSuccess, fontWeight = FontWeight.SemiBold)
             }
         }
         Surface(color = OneStepBlueSoft, shape = CircleShape, modifier = Modifier.clickable(onClick = onOriginalClick)) {
-            Row(Modifier.padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Description, null, tint = OneStepBlue, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("원문 보기", color = OneStepBlue, fontWeight = FontWeight.SemiBold)
@@ -224,13 +228,13 @@ private fun SummaryStatusRow(onOriginalClick: () -> Unit) {
 
 @Composable
 private fun DocumentHero(result: AnalysisResult) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(8.dp)) {
-                Text(result.documentType, style = MaterialTheme.typography.bodySmall, color = OneStepBlue, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                Text(result.documentType, fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
             }
             Spacer(Modifier.width(10.dp))
-            Text(result.title, style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted, maxLines = 1)
+            Text(result.title, fontSize = 13.sp, color = OneStepTextMuted, maxLines = 1)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -241,11 +245,11 @@ private fun DocumentHero(result: AnalysisResult) {
                     }
                     append("예요!")
                 }
-                Text(title, style = MaterialTheme.typography.headlineSmall, color = OneStepText)
-                Spacer(Modifier.height(10.dp))
-                Text(result.summary, style = MaterialTheme.typography.bodyLarge, color = OneStepTextMuted)
+                Text(title, style = TextStyle(fontSize = 26.sp, lineHeight = 36.sp), color = OneStepText)
+                Spacer(Modifier.height(8.dp))
+                Text(result.summary, fontSize = 16.sp, color = OneStepTextMuted)
             }
-            Surface(color = OneStepBlueBright, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(72.dp)) {
+            Surface(color = OneStepBlueBright, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(56.dp)) {
                 Image(painter = painterResource(R.drawable.mascot_face), contentDescription = "한걸음 마스코트", modifier = Modifier.padding(12.dp))
             }
         }
@@ -265,9 +269,9 @@ private fun ExperienceImageCard(title: String, targetGrade: String?) {
         Row(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.School, null, tint = Color.White, modifier = Modifier.size(24.dp))
             Spacer(Modifier.width(8.dp))
-            Text(title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1)
+            Text(title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1)
             Surface(color = Color.White.copy(alpha = .25f), shape = CircleShape) {
-                Text(targetGrade ?: "전체", color = Color.White, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                Text(targetGrade ?: "전체", color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
             }
         }
     }
@@ -275,11 +279,11 @@ private fun ExperienceImageCard(title: String, targetGrade: String?) {
 
 @Composable
 private fun AudioSummaryButton() {
-    Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().clickable { }) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+    Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(48.dp).clickable { }) {
+        Row(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.AutoMirrored.Filled.VolumeUp, null, tint = OneStepBlue)
             Spacer(Modifier.width(10.dp))
-            Text("소리로 요약 들어보기", style = MaterialTheme.typography.bodyLarge, color = OneStepBlue, modifier = Modifier.weight(1f))
+            Text("소리로 요약 들어보기", fontSize = 14.sp, color = OneStepBlue, modifier = Modifier.weight(1f))
             Icon(Icons.Default.PlayArrow, null, tint = OneStepTextMuted, modifier = Modifier.size(22.dp))
         }
     }
@@ -287,15 +291,15 @@ private fun AudioSummaryButton() {
 
 @Composable
 private fun DeadlineCard(deadline: String?, badge: String?, description: String?) {
-    SummaryCard(title = "제출 기한", icon = Icons.Default.CalendarMonth, iconBackground = OneStepBlueSoft) {
+    SummaryCard(title = "제출 기한", icon = Icons.Default.CalendarMonth, iconBackground = OneStepBlueSoft, modifier = Modifier.height(129.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column {
-                Text(formatDeadline(deadline), style = MaterialTheme.typography.headlineSmall, color = Color(0xFFBA1A1A), fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(6.dp))
-                Text(description ?: "마감일을 확인해 주세요.", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+                Text(formatDeadline(deadline), fontSize = 21.sp, lineHeight = 26.sp, color = Color(0xFFBA1A1A), fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(description ?: "마감일을 확인해 주세요.", fontSize = 12.sp, color = OneStepTextMuted)
             }
             Surface(color = Color(0xFFFFDAD6), shape = CircleShape) {
-                Text(badge ?: "날짜 확인", style = MaterialTheme.typography.bodySmall, color = Color(0xFF93000A), modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp))
+                Text(badge ?: "날짜 확인", fontSize = 13.sp, maxLines = 1, softWrap = false, color = Color(0xFF93000A), modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
             }
         }
     }
@@ -303,23 +307,29 @@ private fun DeadlineCard(deadline: String?, badge: String?, description: String?
 
 @Composable
 private fun LocationCard(location: String?, description: String?) {
-    SummaryCard(title = "제출할 곳", icon = Icons.Default.LocationOn, containerColor = OneStepSurface, iconBackground = OneStepSuccessSoft, iconTint = OneStepSuccess) {
+    SummaryCard(title = "제출할 곳", icon = Icons.Default.LocationOn, containerColor = OneStepSurface, iconBackground = OneStepSuccessSoft, iconTint = OneStepSuccess, modifier = Modifier.height(120.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-            Text(location ?: "확인 필요", style = MaterialTheme.typography.titleMedium, color = OneStepText)
-            Text("지도 확인 ›", style = MaterialTheme.typography.bodyMedium, color = OneStepBlue, modifier = Modifier.clickable { })
+            Text(location ?: "확인 필요", fontSize = 19.sp, color = OneStepText)
+            Text("지도 확인 ›", fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.clickable { })
         }
-        Text(description ?: "제출 장소를 확인해 주세요.", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+        Text(description ?: "제출 장소를 확인해 주세요.", fontSize = 13.sp, color = OneStepTextMuted)
     }
 }
 
 @Composable
 private fun ItemsCard(items: List<String>, cost: String?) {
-    SummaryCard(title = "꼭 챙길 것", icon = Icons.AutoMirrored.Filled.Rule, iconBackground = Color(0xFFFFE3B3), iconTint = Color(0xFF996100)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+    SummaryCard(
+        title = "꼭 챙길 것",
+        icon = Icons.AutoMirrored.Filled.Rule,
+        iconBackground = Color(0xFFFFE3B3),
+        iconTint = Color(0xFF996100),
+        modifier = Modifier.height(136.dp),
+        headerTrailing = {
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(6.dp)) {
-                Text("${items.size + if (cost.isNullOrBlank()) 0 else 1}가지", style = MaterialTheme.typography.bodySmall, color = OneStepBlue, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+                Text("${items.size + if (cost.isNullOrBlank()) 0 else 1}가지", fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
             }
-        }
+        },
+    ) {
         items.forEach { item -> BulletItem(item) }
         cost?.takeIf { it.isNotBlank() }?.let { BulletItem(it, emphasizeAmount = true) }
     }
@@ -339,27 +349,39 @@ private fun BulletItem(value: String, emphasizeAmount: Boolean = false) {
                 }
             }
         } else androidx.compose.ui.text.AnnotatedString(value)
-        Text(text, style = MaterialTheme.typography.bodyLarge, color = OneStepText)
+        Text(text, fontSize = 18.sp, color = OneStepText)
     }
 }
 
 @Composable
 private fun PhoneCard(phone: String?, phoneLabel: String?) {
     val context = LocalContext.current
-    SummaryCard(title = "문의 전화", icon = Icons.Default.Phone, iconBackground = OneStepBlueSoft) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(phone ?: "확인 필요", style = MaterialTheme.typography.titleMedium, color = OneStepText, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.width(4.dp))
-                Text("(${phoneLabel ?: "연락처"})", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = OneStepSurface),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth().height(78.dp),
+    ) {
+        Row(Modifier.fillMaxSize().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Default.Phone, null, tint = OneStepBlue, modifier = Modifier.padding(7.dp))
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("문의 전화", fontSize = 13.sp, color = OneStepTextMuted)
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(phone ?: "확인 필요", fontSize = 16.sp, color = OneStepText, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(4.dp))
+                    Text("(${phoneLabel ?: "연락처"})", fontSize = 10.sp, color = OneStepTextMuted)
+                }
             }
             Surface(color = OneStepBlueSoft, shape = CircleShape, modifier = Modifier.clickable {
                 phone?.takeIf { it.isNotBlank() }?.let { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${it.filter(Char::isDigit)}"))) }
             }) {
-                Row(Modifier.padding(horizontal = 12.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Phone, null, tint = OneStepBlue, modifier = Modifier.size(18.dp))
+                Row(Modifier.height(36.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Phone, null, tint = OneStepBlue, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("전화 연결", color = OneStepBlue, style = MaterialTheme.typography.bodySmall)
+                    Text("전화 연결", color = OneStepBlue, fontSize = 13.sp)
                 }
             }
         }
@@ -368,15 +390,13 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
 
 @Composable
 private fun EncouragementCard(encouragement: String?) {
-    Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(18.dp), verticalAlignment = Alignment.Top) {
-            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.size(46.dp)) {
-                Icon(Icons.Default.Lightbulb, null, tint = Color(0xFF9A6800), modifier = Modifier.padding(11.dp))
-            }
+    Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().height(96.dp)) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+            Icon(Icons.Default.Lightbulb, null, tint = OneStepBlue, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(12.dp))
             Column {
-                Text("걱정하지 마세요!", style = MaterialTheme.typography.titleMedium, color = OneStepText)
-                Text(encouragement ?: "한 번에 다 하지 않아도 괜찮아요. 아래 버튼을 눌러 차근차근 도와드릴게요.", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+                Text("걱정하지 마세요!", fontSize = 14.sp, color = OneStepText, fontWeight = FontWeight.SemiBold)
+                Text(encouragement ?: "한 번에 다 하지 않아도 괜찮아요. 아래 버튼을 눌러 차근차근 도와드릴게요.", fontSize = 13.sp, lineHeight = 18.sp, color = OneStepTextMuted)
             }
         }
     }
@@ -384,7 +404,7 @@ private fun EncouragementCard(encouragement: String?) {
 
 @Composable
 private fun AuxiliaryActions() {
-    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(top = 0.dp, bottom = 12.dp).navigationBarsPadding(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null, tint = OneStepTextMuted, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(4.dp))
         Text("어려운 단어 풀이", color = OneStepTextMuted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { })
@@ -402,7 +422,7 @@ private fun StartGuideButton(onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth().height(60.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
-        Text("한 걸음씩 시작하기", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text("한 걸음씩 시작하기", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.width(10.dp))
         Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(22.dp))
     }
@@ -418,12 +438,12 @@ private fun formatDeadline(value: String?): String {
 @Composable
 private fun AnalysisHeaderBar(onBack: () -> Unit) {
     Surface(color = OneStepBackground, shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().statusBarsPadding().height(64.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "뒤로 가기", tint = OneStepText) }
-            Text("한걸음 안내", style = MaterialTheme.typography.titleLarge, color = OneStepText)
+            Text("한걸음 안내", fontSize = 18.sp, color = OneStepText, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.weight(1f))
-            Surface(color = OneStepBlue, shape = CircleShape, modifier = Modifier.size(40.dp)) {
-                Image(painter = painterResource(R.drawable.ic_profile), contentDescription = "프로필", modifier = Modifier.padding(10.dp))
+            Surface(color = OneStepBlue, shape = CircleShape, modifier = Modifier.size(32.dp)) {
+                Image(painter = painterResource(R.drawable.ic_profile), contentDescription = "프로필", modifier = Modifier.padding(8.dp))
             }
         }
     }
@@ -436,16 +456,20 @@ private fun SummaryCard(
     containerColor: Color = OneStepSurface,
     iconBackground: Color = OneStepBlueSoft,
     iconTint: Color = OneStepBlue,
+    modifier: Modifier = Modifier,
+    headerTrailing: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = containerColor), shape = RoundedCornerShape(18.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
-        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Card(colors = CardDefaults.cardColors(containerColor = containerColor), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), modifier = modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = iconBackground, shape = RoundedCornerShape(10.dp), modifier = Modifier.size(42.dp)) {
-                    Icon(icon, null, tint = iconTint, modifier = Modifier.padding(10.dp))
+                Surface(color = iconBackground, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(32.dp)) {
+                    Icon(icon, null, tint = iconTint, modifier = Modifier.padding(7.dp))
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, color = OneStepText)
+                Text(title, fontSize = 14.sp, color = OneStepText)
+                Spacer(Modifier.weight(1f))
+                headerTrailing?.invoke()
             }
             content()
         }
