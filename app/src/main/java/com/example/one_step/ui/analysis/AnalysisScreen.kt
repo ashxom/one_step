@@ -245,7 +245,7 @@ private fun DocumentHero(result: AnalysisResult) {
                     }
                     append("예요!")
                 }
-                Text(title, style = TextStyle(fontSize = 26.sp, lineHeight = 36.sp), color = OneStepText)
+                Text(title, style = TextStyle(fontSize = 26.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold), color = OneStepText)
                 Spacer(Modifier.height(8.dp))
                 Text(result.summary, fontSize = 16.sp, color = OneStepTextMuted)
             }
