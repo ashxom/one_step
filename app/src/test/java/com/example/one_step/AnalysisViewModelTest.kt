@@ -4,11 +4,13 @@ import com.example.one_step.domain.model.AnalysisResult
 import com.example.one_step.domain.repository.AiAnalysisRepository
 import com.example.one_step.ui.analysis.AnalysisUiState
 import com.example.one_step.ui.analysis.AnalysisViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -27,11 +29,12 @@ class AnalysisViewModelTest {
             val viewModel = AnalysisViewModel(repository)
 
             viewModel.analyze("첫 번째 안내문")
-            advanceUntilIdle()
+            runCurrent()
             viewModel.analyze("두 번째 안내문")
             advanceUntilIdle()
 
             assertEquals(listOf("첫 번째 안내문", "두 번째 안내문"), repository.requests)
+            assertTrue(repository.firstRequestCancelled)
             assertTrue(viewModel.uiState is AnalysisUiState.Success)
             assertEquals("두 번째 안내문", (viewModel.uiState as AnalysisUiState.Success).result.title)
         } finally {
@@ -42,10 +45,18 @@ class AnalysisViewModelTest {
 
 private class LatestRequestRepository : AiAnalysisRepository {
     val requests = mutableListOf<String>()
+    var firstRequestCancelled = false
 
     override suspend fun analyzeDocument(text: String): AnalysisResult {
         requests += text
-        if (text == "첫 번째 안내문") awaitCancellation()
+        if (text == "첫 번째 안내문") {
+            try {
+                awaitCancellation()
+            } catch (error: CancellationException) {
+                firstRequestCancelled = true
+                throw error
+            }
+        }
         return AnalysisResult(text, "테스트", "요약", emptyList(), null, null, emptyList(), null, null, null)
     }
 }
