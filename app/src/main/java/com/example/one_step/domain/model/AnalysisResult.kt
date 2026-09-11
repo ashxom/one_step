@@ -11,6 +11,13 @@ data class AnalysisResult(
     val cost: String?,
     val phone: String?,
     val caution: String?,
+    val deadlineBadge: String? = null,
+    val deadlineDescription: String? = null,
+    val locationDescription: String? = null,
+    val tripTitle: String? = null,
+    val targetGrade: String? = null,
+    val phoneLabel: String? = null,
+    val encouragement: String? = null,
 )
 
 data class ActionItem(
