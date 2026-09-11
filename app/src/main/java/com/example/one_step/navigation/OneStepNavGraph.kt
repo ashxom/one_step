@@ -57,7 +57,11 @@ fun OneStepNavGraph(navController: NavHostController) {
             )
         }
         composable(AppDestination.Analysis.route) {
-            AnalysisScreen(documentText = documentSession.documentText, onBack = navController::popBackStack)
+            AnalysisScreen(
+                documentText = documentSession.documentText,
+                onBack = navController::popBackStack,
+                onStartGuide = { navController.navigate(AppDestination.Guide.route) },
+            )
         }
         composable(AppDestination.Guide.route) { GuideScreen(onBack = navController::popBackStack) }
     }
