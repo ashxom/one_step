@@ -9,20 +9,27 @@ class MockAiAnalysisRepository : AiAnalysisRepository {
     override suspend fun analyzeDocument(text: String): AnalysisResult {
         delay(650)
         return AnalysisResult(
-            title = "현장체험학습 참가 신청서",
-            documentType = "학교 안내문",
-            summary = "늘솔초등학교 현장체험학습 참가를 위해 보호자 동의와 준비물 확인이 필요해요.",
+            title = "현장체험학습 안내문",
+            documentType = "가정통신문",
+            summary = "중요한 일정과 준비물을 알기 쉽게 모았어요.",
             actions = listOf(
-                ActionItem("schedule", "일정 확인하기", "체험학습 날짜와 집합 시간을 확인해요.", 3),
-                ActionItem("items", "준비물 챙기기", "안내된 준비물을 빠짐없이 준비해요.", 10),
-                ActionItem("consent", "참가 동의 서명하기", "보호자 동의란을 작성하고 제출해요.", 5),
+                ActionItem("consent", "동의서 서명", "보호자 동의서에 서명해요.", 5),
+                ActionItem("payment", "참가비 확인", "참가비를 스쿨뱅킹으로 이체해요.", 3),
+                ActionItem("items", "준비물 확인", "체험학습 준비물을 챙겨요.", 10),
             ),
-            deadline = "2026년 9월 12일",
-            location = "늘솔초등학교 및 체험학습장",
-            items = listOf("물병", "도시락", "편한 운동화", "우비 또는 우산"),
-            cost = "참가비 10,000원",
-            phone = "02-1234-5678",
-            caution = "출발 10분 전까지 집합하고, 개인 복용약은 별도로 챙겨 주세요.",
+            deadline = "9월 18일(수) 까지",
+            location = "본관 1층 행정실",
+            items = listOf("보호자 동의서 작성 (서명 필수)"),
+            cost = "참가비 20,000원 (스쿨뱅킹 이체)",
+            phone = "042-123-4567",
+            caution = "안내문 내용을 제출 전에 한 번 더 확인해 주세요.",
+            deadlineBadge = "D-5 남음",
+            deadlineDescription = "기한 이후에는 행정 전산 마감으로 접수가 불가능해요.",
+            locationDescription = "교문 통과 후 오른쪽 현관 입구 바로 옆이에요.",
+            tripTitle = "가을 도시 숲 체험학습",
+            targetGrade = "3학년 전체",
+            phoneLabel = "교무실",
+            encouragement = "한 번에 다 하지 않아도 괜찮아요. 아래 버튼을 눌러 첫 번째 단계인 동의서 서명부터 차근차근 도와드릴게요.",
         )
     }
 }
