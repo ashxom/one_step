@@ -2,10 +2,28 @@ package com.example.one_step.ui.guide
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
 
-class GuideSpeechController(context: Context) : TextToSpeech.OnInitListener {
-    private val textToSpeech = TextToSpeech(context.applicationContext, this)
+class GuideSpeechController(
+    context: Context,
+    private val onPlaybackStateChanged: (Boolean) -> Unit,
+) : TextToSpeech.OnInitListener {
+    private val textToSpeech = TextToSpeech(context.applicationContext, this).also { tts ->
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+                onPlaybackStateChanged(true)
+            }
+
+            override fun onDone(utteranceId: String?) {
+                onPlaybackStateChanged(false)
+            }
+
+            override fun onError(utteranceId: String?) {
+                onPlaybackStateChanged(false)
+            }
+        })
+    }
     private var ready = false
     private var pendingText: String? = null
 
@@ -27,6 +45,7 @@ class GuideSpeechController(context: Context) : TextToSpeech.OnInitListener {
     fun stop() {
         pendingText = null
         textToSpeech.stop()
+        onPlaybackStateChanged(false)
     }
 
     fun shutdown() {
