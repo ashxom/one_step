@@ -72,26 +72,29 @@ fun GuideScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val speechController = remember(context) { GuideSpeechController(context) }
+    val speechController = remember(context) { GuideSpeechController(context) { viewModel.setSpeaking(it) } }
     DisposableEffect(speechController) {
         onDispose { speechController.shutdown() }
+    }
+    val stopSpeech = {
+        speechController.stop()
+        viewModel.setSpeaking(false)
     }
     when (val current = state) {
         GuideUiState.Empty -> GuideEmptyScreen(onBack)
         is GuideUiState.Running -> GuideRunningScreen(
             state = current,
-            onBack = onBack,
-            onPrevious = viewModel::previous,
-            onNext = viewModel::next,
-            onComplete = viewModel::completeCurrent,
+            onBack = { stopSpeech(); onBack() },
+            onPrevious = { stopSpeech(); viewModel.previous() },
+            onNext = { stopSpeech(); viewModel.next() },
+            onComplete = { stopSpeech(); viewModel.completeCurrent() },
             onPause = {
-                speechController.stop()
+                stopSpeech()
                 viewModel.togglePause()
             },
             onSpeak = {
                 if (current.isSpeaking) {
-                    speechController.stop()
-                    viewModel.setSpeaking(false)
+                    stopSpeech()
                 } else {
                     val action = current.result.actions[current.currentIndex]
                     speechController.speak("${action.title}. ${action.description}")
