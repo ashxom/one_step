@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.one_step.R
 import com.example.one_step.domain.model.ActionItem
 import com.example.one_step.domain.model.AnalysisResult
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.ui.theme.OneStepBackground
 import com.example.one_step.ui.theme.OneStepBlue
 import com.example.one_step.ui.theme.OneStepBlueSoft
@@ -68,8 +70,10 @@ import com.example.one_step.ui.theme.OneStepTextMuted
 @Composable
 fun GuideScreen(
     onBack: () -> Unit,
+    repository: GuideLocalRepository? = null,
     viewModel: GuideViewModel = viewModel(),
 ) {
+    repository?.let(viewModel::attachLocalRepository)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val speechController = remember(context) { GuideSpeechController(context) { viewModel.setSpeaking(it) } }
@@ -79,6 +83,9 @@ fun GuideScreen(
     val stopSpeech = {
         speechController.stop()
         viewModel.setSpeaking(false)
+    }
+    LaunchedEffect(repository) {
+        if (repository != null && state is GuideUiState.Empty) viewModel.resumeLatest()
     }
     when (val current = state) {
         GuideUiState.Empty -> GuideEmptyScreen(onBack)
