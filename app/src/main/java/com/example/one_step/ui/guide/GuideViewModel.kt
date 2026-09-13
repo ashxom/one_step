@@ -40,7 +40,7 @@ class GuideViewModel : ViewModel() {
         val state = _uiState.value as? GuideUiState.Running ?: return
         val action = state.result.actions.getOrNull(state.currentIndex) ?: return
         val completedIds = state.completedIds + action.id
-        if (state.currentIndex == state.result.actions.lastIndex && completedIds.size == state.result.actions.size) {
+        if (state.result.actions.all { it.id in completedIds }) {
             _uiState.value = GuideUiState.Completed(state.result, state.result.actions)
         } else {
             val nextIndex = if (state.currentIndex == state.result.actions.lastIndex) {
