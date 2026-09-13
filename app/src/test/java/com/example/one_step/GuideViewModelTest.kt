@@ -4,11 +4,28 @@ import com.example.one_step.domain.model.ActionItem
 import com.example.one_step.domain.model.AnalysisResult
 import com.example.one_step.ui.guide.GuideUiState
 import com.example.one_step.ui.guide.GuideViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GuideViewModelTest {
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
     fun completesActionsInOrderAndShowsCompletion() {
         val viewModel = GuideViewModel()
