@@ -10,6 +10,7 @@ import com.example.one_step.ui.document.DirectInputScreen
 import com.example.one_step.ui.document.DocumentSessionViewModel
 import com.example.one_step.ui.document.FileImportScreen
 import com.example.one_step.ui.guide.GuideScreen
+import com.example.one_step.ui.guide.GuideViewModel
 import com.example.one_step.ui.history.HistoryScreen
 import com.example.one_step.ui.home.HomeScreen
 import com.example.one_step.ui.settings.SettingsScreen
@@ -17,6 +18,7 @@ import com.example.one_step.ui.settings.SettingsScreen
 @Composable
 fun OneStepNavGraph(navController: NavHostController) {
     val documentSession: DocumentSessionViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val guideViewModel: GuideViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     NavHost(navController = navController, startDestination = AppDestination.Home.route) {
         composable(AppDestination.Home.route) {
             HomeScreen(onNavigate = navController::navigate)
@@ -60,9 +62,14 @@ fun OneStepNavGraph(navController: NavHostController) {
             AnalysisScreen(
                 documentText = documentSession.documentText,
                 onBack = navController::popBackStack,
-                onStartGuide = { navController.navigate(AppDestination.Guide.route) },
+                onStartGuide = { result ->
+                    guideViewModel.start(result)
+                    navController.navigate(AppDestination.Guide.route)
+                },
             )
         }
-        composable(AppDestination.Guide.route) { GuideScreen(onBack = navController::popBackStack) }
+        composable(AppDestination.Guide.route) {
+            GuideScreen(onBack = navController::popBackStack, viewModel = guideViewModel)
+        }
     }
 }
