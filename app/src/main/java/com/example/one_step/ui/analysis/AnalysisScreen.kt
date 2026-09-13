@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.heightIn
+=======
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -243,6 +246,7 @@ private fun DocumentHero(result: AnalysisResult) {
                     append("이 안내문에서 해야 할 일은\n")
                     withStyle(androidx.compose.ui.text.SpanStyle(color = OneStepBlue, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)) {
                         append("총 ${result.actions.size}가지")
+<<<<<<< HEAD
                     }
                     append("예요!")
                 }
@@ -323,6 +327,77 @@ private fun LocationCard(location: String?, description: String?) {
                     }
                 },
             )
+=======
+                    }
+                    append("예요!")
+                }
+                Text(title, style = TextStyle(fontSize = 26.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold), color = OneStepText)
+                Spacer(Modifier.height(8.dp))
+                Text(result.summary, fontSize = 16.sp, color = OneStepTextMuted)
+            }
+            Surface(color = OneStepBlueBright, shape = RoundedCornerShape(16.dp), modifier = Modifier.size(56.dp)) {
+                Image(painter = painterResource(R.drawable.mascot_face), contentDescription = "한걸음 마스코트", modifier = Modifier.padding(12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExperienceImageCard(title: String, targetGrade: String?) {
+    Box(Modifier.fillMaxWidth().height(144.dp).clip(RoundedCornerShape(18.dp)).background(Color(0xFFDCECF1))) {
+        Image(
+            painter = painterResource(R.drawable.trip_school),
+            contentDescription = "체험학습 이미지",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC2E3445)))))
+        Row(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.School, null, tint = Color.White, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1)
+            Surface(color = Color.White.copy(alpha = .25f), shape = CircleShape) {
+                Text(targetGrade ?: "전체", color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun AudioSummaryButton() {
+    Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(48.dp).clickable { }) {
+        Row(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.AutoMirrored.Filled.VolumeUp, null, tint = OneStepBlue)
+            Spacer(Modifier.width(10.dp))
+            Text("소리로 요약 들어보기", fontSize = 14.sp, color = OneStepBlue, modifier = Modifier.weight(1f))
+            Icon(Icons.Default.PlayArrow, null, tint = OneStepTextMuted, modifier = Modifier.size(22.dp))
+        }
+    }
+}
+
+@Composable
+private fun DeadlineCard(deadline: String?, badge: String?, description: String?) {
+    SummaryCard(title = "제출 기한", icon = Icons.Default.CalendarMonth, iconBackground = OneStepBlueSoft, modifier = Modifier.height(129.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+            Column {
+                Text(formatDeadline(deadline), fontSize = 21.sp, lineHeight = 26.sp, color = Color(0xFFBA1A1A), fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(description ?: "마감일을 확인해 주세요.", fontSize = 12.sp, color = OneStepTextMuted)
+            }
+            Surface(color = Color(0xFFFFDAD6), shape = CircleShape) {
+                Text(badge ?: "날짜 확인", fontSize = 13.sp, maxLines = 1, softWrap = false, color = Color(0xFF93000A), modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocationCard(location: String?, description: String?) {
+    SummaryCard(title = "제출할 곳", icon = Icons.Default.LocationOn, containerColor = OneStepSurface, iconBackground = OneStepSuccessSoft, iconTint = OneStepSuccess, modifier = Modifier.height(120.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+            Text(location ?: "확인 필요", fontSize = 19.sp, color = OneStepText)
+            Text("지도 확인 ›", fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.clickable { })
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
         }
         Text(description ?: "제출 장소를 확인해 주세요.", fontSize = 13.sp, color = OneStepTextMuted)
     }
@@ -335,7 +410,11 @@ private fun ItemsCard(items: List<String>, cost: String?) {
         icon = Icons.AutoMirrored.Filled.Rule,
         iconBackground = Color(0xFFFFE3B3),
         iconTint = Color(0xFF996100),
+<<<<<<< HEAD
         modifier = Modifier.heightIn(min = 136.dp),
+=======
+        modifier = Modifier.height(136.dp),
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
         headerTrailing = {
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(6.dp)) {
                 Text("${items.size + if (cost.isNullOrBlank()) 0 else 1}가지", fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -372,9 +451,15 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+<<<<<<< HEAD
         modifier = Modifier.fillMaxWidth().heightIn(min = 78.dp),
     ) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+=======
+        modifier = Modifier.fillMaxWidth().height(78.dp),
+    ) {
+        Row(Modifier.fillMaxSize().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(32.dp)) {
                 Icon(Icons.Default.Phone, null, tint = OneStepBlue, modifier = Modifier.padding(7.dp))
             }
@@ -388,10 +473,14 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
                 }
             }
             Surface(color = OneStepBlueSoft, shape = CircleShape, modifier = Modifier.clickable {
+<<<<<<< HEAD
                 phone?.takeIf { it.isNotBlank() }?.let {
                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${it.filter(Char::isDigit)}"))
                     if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
                 }
+=======
+                phone?.takeIf { it.isNotBlank() }?.let { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${it.filter(Char::isDigit)}"))) }
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
             }) {
                 Row(Modifier.height(36.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Phone, null, tint = OneStepBlue, modifier = Modifier.size(16.dp))
@@ -405,11 +494,19 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
 
 @Composable
 private fun EncouragementCard(encouragement: String?) {
+<<<<<<< HEAD
     Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
             Icon(Icons.Default.Lightbulb, null, tint = OneStepBlue, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
+=======
+    Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().height(96.dp)) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+            Icon(Icons.Default.Lightbulb, null, tint = OneStepBlue, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(12.dp))
+            Column {
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
                 Text("걱정하지 마세요!", fontSize = 14.sp, color = OneStepText, fontWeight = FontWeight.SemiBold)
                 Text(encouragement ?: "한 번에 다 하지 않아도 괜찮아요. 아래 버튼을 눌러 차근차근 도와드릴게요.", fontSize = 13.sp, lineHeight = 18.sp, color = OneStepTextMuted)
             }
@@ -422,11 +519,19 @@ private fun AuxiliaryActions() {
     Row(Modifier.fillMaxWidth().padding(top = 0.dp, bottom = 12.dp).navigationBarsPadding(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null, tint = OneStepTextMuted, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(4.dp))
+<<<<<<< HEAD
         Text("어려운 단어 풀이", color = OneStepTextMuted, style = MaterialTheme.typography.bodyMedium)
         Text("•", color = OneStepBlueSoft, modifier = Modifier.padding(horizontal = 14.dp))
         Icon(Icons.Default.EditNote, contentDescription = null, tint = OneStepTextMuted, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(4.dp))
         Text("정보 수정 요청", color = OneStepTextMuted, style = MaterialTheme.typography.bodyMedium)
+=======
+        Text("어려운 단어 풀이", color = OneStepTextMuted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { })
+        Text("•", color = OneStepBlueSoft, modifier = Modifier.padding(horizontal = 14.dp))
+        Icon(Icons.Default.EditNote, contentDescription = null, tint = OneStepTextMuted, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(4.dp))
+        Text("정보 수정 요청", color = OneStepTextMuted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { })
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
     }
 }
 
@@ -476,7 +581,11 @@ private fun SummaryCard(
     content: @Composable () -> Unit,
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = containerColor), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), modifier = modifier.fillMaxWidth()) {
+<<<<<<< HEAD
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+=======
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+>>>>>>> origin/feature/7-ai-안내문-분석-기능-구현
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(color = iconBackground, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(32.dp)) {
                     Icon(icon, null, tint = iconTint, modifier = Modifier.padding(7.dp))
