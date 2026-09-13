@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.one_step.R
 import com.example.one_step.domain.model.AnalysisResult
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.ui.theme.OneStepBackground
 import com.example.one_step.ui.theme.OneStepBlue
 import com.example.one_step.ui.theme.OneStepBlueBright
@@ -94,8 +95,10 @@ fun AnalysisScreen(
     documentText: String?,
     onBack: () -> Unit,
     onStartGuide: (AnalysisResult) -> Unit,
+    localRepository: GuideLocalRepository? = null,
     viewModel: AnalysisViewModel = viewModel(),
 ) {
+    localRepository?.let(viewModel::attachLocalRepository)
     LaunchedEffect(documentText) {
         viewModel.analyze(documentText.orEmpty())
     }
