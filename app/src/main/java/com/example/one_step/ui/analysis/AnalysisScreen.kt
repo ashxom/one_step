@@ -93,7 +93,7 @@ import com.example.one_step.ui.theme.OneStepTextMuted
 fun AnalysisScreen(
     documentText: String?,
     onBack: () -> Unit,
-    onStartGuide: () -> Unit,
+    onStartGuide: (AnalysisResult) -> Unit,
     viewModel: AnalysisViewModel = viewModel(),
 ) {
     LaunchedEffect(documentText) {
@@ -166,7 +166,7 @@ private fun AnalysisSummaryScreen(
     result: AnalysisResult,
     documentText: String?,
     onBack: () -> Unit,
-    onStartGuide: () -> Unit,
+    onStartGuide: (AnalysisResult) -> Unit,
 ) {
     var showOriginal by rememberSaveable { mutableStateOf(false) }
     Scaffold(
@@ -187,7 +187,7 @@ private fun AnalysisSummaryScreen(
             ItemsCard(result.items, result.cost)
             PhoneCard(result.phone, result.phoneLabel)
             EncouragementCard(result.encouragement)
-            StartGuideButton(onStartGuide)
+            StartGuideButton(onClick = { onStartGuide(result) })
             AuxiliaryActions()
         }
     }
