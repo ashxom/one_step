@@ -66,6 +66,12 @@ class AnalysisViewModel(
         }
     }
 
+    fun showResult(result: AnalysisResult) {
+        analysisJob?.cancel()
+        latestRequestId += 1
+        uiState = AnalysisUiState.Success(result)
+    }
+
     override fun onCleared() {
         analysisJob?.cancel()
         super.onCleared()
