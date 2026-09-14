@@ -3,6 +3,7 @@ package com.example.one_step.data.repository
 import com.example.one_step.data.local.ActionEntity
 import com.example.one_step.data.local.GuideDocumentDao
 import com.example.one_step.data.local.GuideDocumentEntity
+import com.example.one_step.data.local.GuideDocumentWithActions
 import com.example.one_step.domain.model.ActionItem
 import com.example.one_step.domain.model.AnalysisResult
 import com.example.one_step.domain.model.GuideRecord
@@ -14,11 +15,10 @@ import kotlinx.coroutines.flow.map
 
 class RoomGuideLocalRepository(private val dao: GuideDocumentDao) : GuideLocalRepository {
     override suspend fun saveAnalysis(documentText: String, result: AnalysisResult): String {
-        val documentId = analysisDocumentId(result)
+        val documentId = analysisDocumentId(documentText, result)
         val existingDocument = dao.getDocument(documentId)
         val existingActions = dao.getActions(documentId).associateBy { it.id }
-        dao.insertDocument(
-            GuideDocumentEntity(
+        val document = GuideDocumentEntity(
                 id = documentId,
                 title = result.title,
                 documentType = result.documentType,
@@ -32,46 +32,44 @@ class RoomGuideLocalRepository(private val dao: GuideDocumentDao) : GuideLocalRe
                 summary = result.summary,
                 documentText = documentText,
                 isCompleted = existingDocument?.isCompleted ?: false,
-            ),
         )
-        dao.insertActions(result.actions.map { it.toEntity(documentId, existingActions[it.id]?.completed == true) })
+        val actions = result.actions.map { it.toEntity(documentId, existingActions[it.id]?.completed == true) }
+        dao.insertDocumentWithActions(document, actions)
         return documentId
     }
 
     override fun observeRecords(): Flow<List<GuideRecord>> = dao.observeDocuments()
-        .map { documents -> documents.mapNotNull { document -> document.toRecord(dao.getActions(document.id)) } }
+        .map { documents -> documents.map { it.toRecord() } }
         .catch { emit(emptyList()) }
 
     override suspend fun getRecord(documentId: String): GuideRecord? {
         val document = dao.getDocument(documentId) ?: return null
-        return document.toRecord(dao.getActions(documentId))
+        return GuideDocumentWithActions(document, dao.getActions(documentId)).toRecord()
     }
 
     override suspend fun markActionCompleted(documentId: String, actionId: String) {
-        dao.markActionCompleted(documentId, actionId)
-        dao.updateDocumentCompletion(documentId)
+        dao.markActionCompletedAndUpdateDocument(documentId, actionId)
     }
 
     override suspend fun clearAll() {
-        dao.deleteActions()
-        dao.deleteDocuments()
+        dao.deleteAll()
     }
 
-    private fun GuideDocumentEntity.toRecord(actions: List<ActionEntity>): GuideRecord = GuideRecord(
-        id = id,
-        documentText = documentText,
-        analysisDate = analysisDate,
+    private fun GuideDocumentWithActions.toRecord(): GuideRecord = GuideRecord(
+        id = document.id,
+        documentText = document.documentText,
+        analysisDate = document.analysisDate,
         result = AnalysisResult(
-            title = title,
-            documentType = documentType,
-            summary = summary,
+            title = document.title,
+            documentType = document.documentType,
+            summary = document.summary,
             actions = actions.map(::toDomain),
-            deadline = deadline,
-            location = location,
-            items = items.split(ITEM_SEPARATOR).filter(String::isNotBlank),
-            cost = cost,
-            phone = phone,
-            caution = caution,
+            deadline = document.deadline,
+            location = document.location,
+            items = document.items.split(ITEM_SEPARATOR).filter(String::isNotBlank),
+            cost = document.cost,
+            phone = document.phone,
+            caution = document.caution,
         ),
         completedActionIds = actions.filter { it.completed }.mapTo(mutableSetOf()) { it.id },
     )
