@@ -93,14 +93,19 @@ import com.example.one_step.ui.theme.OneStepTextMuted
 @Composable
 fun AnalysisScreen(
     documentText: String?,
+    initialResult: AnalysisResult? = null,
     onBack: () -> Unit,
     onStartGuide: (AnalysisResult) -> Unit,
     localRepository: GuideLocalRepository? = null,
     viewModel: AnalysisViewModel = viewModel(),
 ) {
     localRepository?.let(viewModel::attachLocalRepository)
-    LaunchedEffect(documentText) {
-        viewModel.analyze(documentText.orEmpty())
+    LaunchedEffect(documentText, initialResult) {
+        if (initialResult != null) {
+            viewModel.showResult(initialResult)
+        } else {
+            viewModel.analyze(documentText.orEmpty())
+        }
     }
 
     when (val state = viewModel.uiState) {
