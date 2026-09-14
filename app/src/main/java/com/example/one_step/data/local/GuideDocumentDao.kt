@@ -4,34 +4,54 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface GuideDocumentDao {
+abstract class GuideDocumentDao {
+    @Transaction
     @Query("SELECT * FROM guide_documents ORDER BY analysisDate DESC")
-    fun observeDocuments(): Flow<List<GuideDocumentEntity>>
+    abstract fun observeDocuments(): Flow<List<GuideDocumentWithActions>>
 
     @Query("SELECT * FROM guide_documents WHERE id = :documentId LIMIT 1")
-    suspend fun getDocument(documentId: String): GuideDocumentEntity?
+    abstract suspend fun getDocument(documentId: String): GuideDocumentEntity?
 
     @Query("SELECT * FROM guide_actions WHERE documentId = :documentId ORDER BY rowid ASC")
-    suspend fun getActions(documentId: String): List<ActionEntity>
+    abstract suspend fun getActions(documentId: String): List<ActionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDocument(document: GuideDocumentEntity)
+    protected abstract suspend fun insertDocument(document: GuideDocumentEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertActions(actions: List<ActionEntity>)
+    protected abstract suspend fun insertActions(actions: List<ActionEntity>)
+
+    @Transaction
+    open suspend fun insertDocumentWithActions(document: GuideDocumentEntity, actions: List<ActionEntity>) {
+        insertDocument(document)
+        if (actions.isNotEmpty()) insertActions(actions)
+    }
 
     @Query("UPDATE guide_actions SET completed = 1 WHERE documentId = :documentId AND id = :actionId")
-    suspend fun markActionCompleted(documentId: String, actionId: String)
+    protected abstract suspend fun markActionCompleted(documentId: String, actionId: String)
 
     @Query("UPDATE guide_documents SET isCompleted = 1 WHERE id = :documentId AND NOT EXISTS (SELECT 1 FROM guide_actions WHERE documentId = :documentId AND completed = 0)")
-    suspend fun updateDocumentCompletion(documentId: String)
+    protected abstract suspend fun updateDocumentCompletion(documentId: String)
+
+    @Transaction
+    open suspend fun markActionCompletedAndUpdateDocument(documentId: String, actionId: String) {
+        markActionCompleted(documentId, actionId)
+        updateDocumentCompletion(documentId)
+    }
 
     @Query("DELETE FROM guide_actions")
-    suspend fun deleteActions()
+    protected abstract suspend fun deleteActions()
 
     @Query("DELETE FROM guide_documents")
-    suspend fun deleteDocuments()
+    protected abstract suspend fun deleteDocuments()
+
+    @Transaction
+    open suspend fun deleteAll() {
+        deleteActions()
+        deleteDocuments()
+    }
 }
