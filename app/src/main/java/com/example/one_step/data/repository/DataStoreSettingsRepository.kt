@@ -10,12 +10,19 @@ import com.example.one_step.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 private val Context.settingsDataStore by preferencesDataStore(name = "one_step_settings")
 
 class DataStoreSettingsRepository(private val context: Context) : SettingsRepository {
     override val settings: Flow<AppSettings> = context.settingsDataStore.data
-        .catch { emit(androidx.datastore.preferences.core.emptyPreferences()) }
+        .catch { error ->
+            if (error is IOException) {
+                emit(androidx.datastore.preferences.core.emptyPreferences())
+            } else {
+                throw error
+            }
+        }
         .map { preferences ->
             AppSettings(
                 fontScale = preferences[FONT_SCALE] ?: 1f,
