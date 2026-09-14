@@ -95,6 +95,7 @@ fun GuideScreen(
             onPrevious = { stopSpeech(); viewModel.previous() },
             onNext = { stopSpeech(); viewModel.next() },
             onComplete = { stopSpeech(); viewModel.completeCurrent() },
+            onRetryComplete = { stopSpeech(); viewModel.retryCompleteCurrent() },
             onPause = {
                 stopSpeech()
                 viewModel.togglePause()
@@ -141,6 +142,7 @@ private fun GuideRunningScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onComplete: () -> Unit,
+    onRetryComplete: () -> Unit,
     onPause: () -> Unit,
     onSpeak: () -> Unit,
 ) {
@@ -201,10 +203,18 @@ private fun GuideRunningScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                 }
             }
-            Button(onClick = onComplete, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = OneStepBlue)) {
+            Button(onClick = onComplete, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = OneStepBlue)) {
                 Icon(Icons.Default.Check, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("작성했어요", style = MaterialTheme.typography.titleMedium)
+                Text(if (state.isSaving) "저장 중…" else "작성했어요", style = MaterialTheme.typography.titleMedium)
+            }
+            state.saveError?.let { message ->
+                Surface(color = OneStepSuccessSoft.copy(alpha = 0.35f), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(message, style = MaterialTheme.typography.bodyMedium, color = OneStepText, modifier = Modifier.weight(1f))
+                        TextButton(onClick = onRetryComplete) { Text("다시 시도", color = OneStepBlue) }
+                    }
+                }
             }
             OutlinedButton(onClick = onPause, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
                 Icon(if (state.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, contentDescription = null)
@@ -285,5 +295,5 @@ private fun previewResult() = AnalysisResult(
 @Preview(showBackground = true)
 @Composable
 private fun GuideRunningPreview() {
-    GuideRunningScreen(GuideUiState.Running(previewResult(), 0), {}, {}, {}, {}, {}, {})
+    GuideRunningScreen(GuideUiState.Running(previewResult(), 0), {}, {}, {}, {}, {}, {}, {})
 }
