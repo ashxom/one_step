@@ -27,6 +27,7 @@ fun OneStepNavGraph(navController: NavHostController) {
     val guideViewModel: GuideViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val localRepository = remember(context) { RoomGuideLocalRepository(OneStepDatabase.getInstance(context).guideDocumentDao()) }
     val settingsRepository = remember(context) { DataStoreSettingsRepository(context) }
+    guideViewModel.attachLocalRepository(localRepository)
     NavHost(navController = navController, startDestination = AppDestination.Home.route) {
         composable(AppDestination.Home.route) {
             HomeScreen(onNavigate = navController::navigate)
@@ -35,7 +36,7 @@ fun OneStepNavGraph(navController: NavHostController) {
             HistoryScreen(
                 repository = localRepository,
                 onRecordClick = { record ->
-                    documentSession.setDocumentText(record.documentText)
+                    documentSession.setDocumentText(record.documentText, record)
                     navController.navigate(AppDestination.Analysis.route)
                 },
             )
@@ -79,10 +80,11 @@ fun OneStepNavGraph(navController: NavHostController) {
         composable(AppDestination.Analysis.route) {
             AnalysisScreen(
                 documentText = documentSession.documentText,
+                initialResult = documentSession.selectedRecord?.result,
                 onBack = navController::popBackStack,
                 localRepository = localRepository,
                 onStartGuide = { result ->
-                    guideViewModel.start(result)
+                    guideViewModel.start(result, documentSession.documentText)
                     navController.navigate(AppDestination.Guide.route)
                 },
             )
