@@ -8,12 +8,24 @@ data class GuideRecord(
     val completedActionIds: Set<String>,
 )
 
-fun analysisDocumentId(result: AnalysisResult): String = listOf(
-    result.title,
-    result.documentType,
-    result.deadline.orEmpty(),
-    result.actions.joinToString { it.id },
-).joinToString("|").hashCode().toString()
+fun analysisDocumentId(documentText: String, result: AnalysisResult): String {
+    val source = buildString {
+        append(documentText)
+        append('|')
+        append(result.title)
+        append('|')
+        append(result.documentType)
+        append('|')
+        append(result.deadline.orEmpty())
+        append('|')
+        append(result.actions.joinToString { it.id })
+    }
+    return java.security.MessageDigest.getInstance("SHA-256")
+        .digest(source.toByteArray(Charsets.UTF_8))
+        .joinToString(separator = "") { byte -> "%02x".format(byte) }
+}
+
+fun analysisDocumentId(result: AnalysisResult): String = analysisDocumentId("", result)
 
 val GuideRecord.completedActionCount: Int
     get() = completedActionIds.size
