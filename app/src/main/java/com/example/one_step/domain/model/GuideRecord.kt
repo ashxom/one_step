@@ -10,7 +10,7 @@ data class GuideRecord(
 
 fun analysisDocumentId(documentText: String, result: AnalysisResult): String {
     val source = buildString {
-        append(documentText)
+        append(documentText.trim())
         append('|')
         append(result.title)
         append('|')

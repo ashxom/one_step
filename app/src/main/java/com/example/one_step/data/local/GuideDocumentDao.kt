@@ -16,7 +16,7 @@ abstract class GuideDocumentDao {
     @Query("SELECT * FROM guide_documents WHERE id = :documentId LIMIT 1")
     abstract suspend fun getDocument(documentId: String): GuideDocumentEntity?
 
-    @Query("SELECT * FROM guide_actions WHERE documentId = :documentId ORDER BY rowid ASC")
+    @Query("SELECT * FROM guide_actions WHERE documentId = :documentId ORDER BY sortOrder ASC, rowid ASC")
     abstract suspend fun getActions(documentId: String): List<ActionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
