@@ -6,6 +6,7 @@ import androidx.room.Entity
 data class ActionEntity(
     val id: String,
     val documentId: String,
+    val sortOrder: Int,
     val title: String,
     val description: String,
     val estimatedMinutes: Int,
