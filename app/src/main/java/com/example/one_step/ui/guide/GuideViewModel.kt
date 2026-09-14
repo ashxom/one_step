@@ -36,19 +36,23 @@ class GuideViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<GuideUiState>(GuideUiState.Empty)
     val uiState: StateFlow<GuideUiState> = _uiState.asStateFlow()
     private var localRepository: GuideLocalRepository? = null
+    private var sessionToken = 0L
 
     fun attachLocalRepository(repository: GuideLocalRepository) {
         localRepository = repository
     }
 
     fun resumeLatest() {
+        val resumeSessionToken = sessionToken
         viewModelScope.launch {
             val record = runCatching { localRepository?.observeRecords()?.first()?.firstOrNull() }.getOrNull() ?: return@launch
+            if (resumeSessionToken != sessionToken) return@launch
             start(record.result, record.documentText)
         }
     }
 
     fun start(result: AnalysisResult, documentText: String? = null) {
+        sessionToken += 1
         if (result.actions.isEmpty()) {
             _uiState.value = GuideUiState.Completed(result, emptyList())
         } else {
@@ -77,10 +81,12 @@ class GuideViewModel : ViewModel() {
         val state = _uiState.value as? GuideUiState.Running ?: return
         if (state.isSaving) return
         val action = state.result.actions.getOrNull(state.currentIndex) ?: return
+        val completionSessionToken = sessionToken
         _uiState.value = state.copy(isSaving = true, saveError = null)
         viewModelScope.launch {
             try {
                 localRepository?.markActionCompleted(state.documentId, action.id)
+                if (completionSessionToken != sessionToken) return@launch
                 val completedIds = state.completedIds + action.id
                 if (state.result.actions.all { it.id in completedIds }) {
                     _uiState.value = GuideUiState.Completed(state.result, state.result.actions)
@@ -102,6 +108,7 @@ class GuideViewModel : ViewModel() {
             } catch (error: kotlinx.coroutines.CancellationException) {
                 throw error
             } catch (_: Throwable) {
+                if (completionSessionToken != sessionToken) return@launch
                 val current = _uiState.value as? GuideUiState.Running
                 if (current?.documentId == state.documentId && current.currentIndex == state.currentIndex) {
                     _uiState.value = current.copy(
