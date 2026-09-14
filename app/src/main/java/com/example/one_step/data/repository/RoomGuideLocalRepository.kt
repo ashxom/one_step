@@ -29,11 +29,20 @@ class RoomGuideLocalRepository(private val dao: GuideDocumentDao) : GuideLocalRe
                 phone = result.phone,
                 cost = result.cost,
                 caution = result.caution,
+                deadlineBadge = result.deadlineBadge,
+                deadlineDescription = result.deadlineDescription,
+                locationDescription = result.locationDescription,
+                tripTitle = result.tripTitle,
+                targetGrade = result.targetGrade,
+                phoneLabel = result.phoneLabel,
+                encouragement = result.encouragement,
                 summary = result.summary,
                 documentText = documentText,
                 isCompleted = existingDocument?.isCompleted ?: false,
         )
-        val actions = result.actions.map { it.toEntity(documentId, existingActions[it.id]?.completed == true) }
+        val actions = result.actions.mapIndexed { index, action ->
+            action.toEntity(documentId, index, existingActions[action.id]?.completed == true)
+        }
         dao.insertDocumentWithActions(document, actions)
         return documentId
     }
@@ -70,11 +79,19 @@ class RoomGuideLocalRepository(private val dao: GuideDocumentDao) : GuideLocalRe
             cost = document.cost,
             phone = document.phone,
             caution = document.caution,
+            deadlineBadge = document.deadlineBadge,
+            deadlineDescription = document.deadlineDescription,
+            locationDescription = document.locationDescription,
+            tripTitle = document.tripTitle,
+            targetGrade = document.targetGrade,
+            phoneLabel = document.phoneLabel,
+            encouragement = document.encouragement,
         ),
         completedActionIds = actions.filter { it.completed }.mapTo(mutableSetOf()) { it.id },
     )
 
-    private fun ActionItem.toEntity(documentId: String, completed: Boolean) = ActionEntity(id, documentId, title, description, estimatedMinutes, completed)
+    private fun ActionItem.toEntity(documentId: String, sortOrder: Int, completed: Boolean) =
+        ActionEntity(id, documentId, sortOrder, title, description, estimatedMinutes, completed)
 
     private fun toDomain(action: ActionEntity) = ActionItem(action.id, action.title, action.description, action.estimatedMinutes)
 
