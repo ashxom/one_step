@@ -2,13 +2,36 @@ package com.example.one_step
 
 import com.example.one_step.domain.model.ActionItem
 import com.example.one_step.domain.model.AnalysisResult
+import com.example.one_step.domain.model.GuideRecord
+import com.example.one_step.domain.model.analysisDocumentId
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.ui.guide.GuideUiState
 import com.example.one_step.ui.guide.GuideViewModel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GuideViewModelTest {
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
     fun completesActionsInOrderAndShowsCompletion() {
         val viewModel = GuideViewModel()
@@ -40,8 +63,39 @@ class GuideViewModelTest {
         assertTrue((viewModel.uiState.value as GuideUiState.Running).isPaused)
     }
 
-    private fun sampleResult() = AnalysisResult(
-        title = "현장체험학습",
+    @Test
+    fun keepsNewGuideStateWhenPreviousCompletionFinishesLate() {
+        val repository = DelayedGuideLocalRepository()
+        val viewModel = GuideViewModel()
+        val firstResult = sampleResult()
+        val secondResult = sampleResult(title = "새 안내문")
+        viewModel.attachLocalRepository(repository)
+
+        viewModel.start(firstResult)
+        viewModel.completeCurrent()
+        assertTrue(repository.markStarted.isCompleted)
+
+        viewModel.start(secondResult)
+        repository.allowMark.complete(Unit)
+
+        val running = viewModel.uiState.value as GuideUiState.Running
+        assertEquals(secondResult, running.result)
+        assertEquals(0, running.currentIndex)
+        assertTrue(running.completedIds.isEmpty())
+    }
+
+    @Test
+    fun usesTheSameDocumentIdForTrimmedText() {
+        val result = sampleResult()
+
+        assertEquals(
+            analysisDocumentId("안내문 내용", result),
+            analysisDocumentId("  \n안내문 내용\t ", result),
+        )
+    }
+
+    private fun sampleResult(title: String = "현장체험학습") = AnalysisResult(
+        title = title,
         documentType = "가정통신문",
         summary = "요약",
         actions = listOf(
@@ -56,4 +110,22 @@ class GuideViewModelTest {
         phone = null,
         caution = null,
     )
+
+    private class DelayedGuideLocalRepository : GuideLocalRepository {
+        val markStarted = CompletableDeferred<Unit>()
+        val allowMark = CompletableDeferred<Unit>()
+
+        override suspend fun saveAnalysis(documentText: String, result: AnalysisResult): String = "document-id"
+
+        override fun observeRecords(): Flow<List<GuideRecord>> = flowOf(emptyList())
+
+        override suspend fun getRecord(documentId: String): GuideRecord? = null
+
+        override suspend fun markActionCompleted(documentId: String, actionId: String) {
+            markStarted.complete(Unit)
+            allowMark.await()
+        }
+
+        override suspend fun clearAll() = Unit
+    }
 }

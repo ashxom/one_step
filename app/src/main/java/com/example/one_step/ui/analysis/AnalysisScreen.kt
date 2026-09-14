@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.one_step.R
 import com.example.one_step.domain.model.AnalysisResult
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.ui.theme.OneStepBackground
 import com.example.one_step.ui.theme.OneStepBlue
 import com.example.one_step.ui.theme.OneStepBlueBright
@@ -92,12 +93,19 @@ import com.example.one_step.ui.theme.OneStepTextMuted
 @Composable
 fun AnalysisScreen(
     documentText: String?,
+    initialResult: AnalysisResult? = null,
     onBack: () -> Unit,
     onStartGuide: (AnalysisResult) -> Unit,
+    localRepository: GuideLocalRepository? = null,
     viewModel: AnalysisViewModel = viewModel(),
 ) {
-    LaunchedEffect(documentText) {
-        viewModel.analyze(documentText.orEmpty())
+    localRepository?.let(viewModel::attachLocalRepository)
+    LaunchedEffect(documentText, initialResult) {
+        if (initialResult != null) {
+            viewModel.showResult(initialResult)
+        } else {
+            viewModel.analyze(documentText.orEmpty())
+        }
     }
 
     when (val state = viewModel.uiState) {

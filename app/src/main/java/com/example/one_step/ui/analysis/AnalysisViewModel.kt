@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import com.example.one_step.data.repository.MockAiAnalysisRepository
 import com.example.one_step.domain.model.AnalysisResult
 import com.example.one_step.domain.repository.AiAnalysisRepository
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.domain.usecase.AnalyzeDocumentUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -22,6 +23,7 @@ sealed interface AnalysisUiState {
 
 class AnalysisViewModel(
     repository: AiAnalysisRepository = MockAiAnalysisRepository(),
+    private var localRepository: GuideLocalRepository? = null,
 ) : ViewModel() {
     private val analyzeDocument = AnalyzeDocumentUseCase(repository)
     private var analysisJob: Job? = null
@@ -29,6 +31,10 @@ class AnalysisViewModel(
 
     var uiState: AnalysisUiState by mutableStateOf(AnalysisUiState.Idle)
         private set
+
+    fun attachLocalRepository(repository: GuideLocalRepository) {
+        localRepository = repository
+    }
 
     fun analyze(text: String) {
         val documentText = text.trim()
@@ -42,6 +48,12 @@ class AnalysisViewModel(
             uiState = AnalysisUiState.Loading
             try {
                 val result = analyzeDocument(documentText)
+                try {
+                    localRepository?.saveAnalysis(documentText, result)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Throwable) {
+                }
                 if (requestId == latestRequestId) {
                     uiState = AnalysisUiState.Success(result)
                 }
@@ -52,6 +64,12 @@ class AnalysisViewModel(
                 }
             }
         }
+    }
+
+    fun showResult(result: AnalysisResult) {
+        analysisJob?.cancel()
+        latestRequestId += 1
+        uiState = AnalysisUiState.Success(result)
     }
 
     override fun onCleared() {
