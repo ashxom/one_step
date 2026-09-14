@@ -44,12 +44,16 @@ fun SettingsScreen(
 ) {
     repository?.let(viewModel::attachRepository)
     val settings by viewModel.uiState.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize().background(OneStepBackground).padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("설정", style = MaterialTheme.typography.headlineSmall, color = OneStepText, fontWeight = FontWeight.Bold)
         Text("나에게 맞는 한걸음 안내를 설정해 보세요.", style = MaterialTheme.typography.bodyLarge, color = OneStepTextMuted)
+        errorMessage?.let { message ->
+            Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+        }
         Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = OneStepSurface), modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("글자 크기", style = MaterialTheme.typography.titleMedium, color = OneStepText)
