@@ -62,7 +62,9 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onCaptureFailed(message: String) {
-        update { it.copy(ocrState = OcrState.Error(message)) }
+        viewModelScope.launch {
+            update { it.copy(ocrState = OcrState.Error(message)) }
+        }
     }
 
     fun onImageSelectionCancelled() {
@@ -86,7 +88,7 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
                     onFailure = { error ->
                         if (error is CancellationException) throw error
                         val message = when (error) {
-                            is EmptyTextException -> error.message.orEmpty()
+                            is EmptyTextException -> "텍스트를 찾지 못했어요. 안내문을 다시 촬영해 주세요."
                             else -> "이미지의 글자를 읽지 못했습니다. 다시 촬영해 주세요."
                         }
                         update { it.copy(ocrState = OcrState.Error(message)) }
