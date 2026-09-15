@@ -71,10 +71,24 @@ class GuideViewModelTest {
         val secondResult = sampleResult(title = "새 안내문")
         viewModel.attachLocalRepository(repository)
 
+        repository.record = GuideRecord(
+            id = analysisDocumentId("", firstResult),
+            documentText = "",
+            analysisDate = 0L,
+            result = firstResult,
+            completedActionIds = emptySet(),
+        )
         viewModel.start(firstResult)
         viewModel.completeCurrent()
         assertTrue(repository.markStarted.isCompleted)
 
+        repository.record = GuideRecord(
+            id = analysisDocumentId("", secondResult),
+            documentText = "",
+            analysisDate = 0L,
+            result = secondResult,
+            completedActionIds = emptySet(),
+        )
         viewModel.start(secondResult)
         repository.allowMark.complete(Unit)
 
@@ -114,12 +128,13 @@ class GuideViewModelTest {
     private class DelayedGuideLocalRepository : GuideLocalRepository {
         val markStarted = CompletableDeferred<Unit>()
         val allowMark = CompletableDeferred<Unit>()
+        var record: GuideRecord? = null
 
         override suspend fun saveAnalysis(documentText: String, result: AnalysisResult): String = "document-id"
 
         override fun observeRecords(): Flow<List<GuideRecord>> = flowOf(emptyList())
 
-        override suspend fun getRecord(documentId: String): GuideRecord? = null
+        override suspend fun getRecord(documentId: String): GuideRecord? = record?.takeIf { it.id == documentId }
 
         override suspend fun markActionCompleted(documentId: String, actionId: String) {
             markStarted.complete(Unit)
