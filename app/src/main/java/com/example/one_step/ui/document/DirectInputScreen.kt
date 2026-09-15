@@ -86,7 +86,11 @@ fun DirectInputScreen(
         if (state is DocumentInputState.Error) {
             Text(state.message, color = Color(0xFFB3261E), style = MaterialTheme.typography.bodySmall)
         }
-        Button(onClick = { viewModel.submitText(text) }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { viewModel.submitText(text) },
+            enabled = state !is DocumentInputState.Loading && state !is DocumentInputState.Success,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
             Icon(Icons.Default.AutoAwesome, null)
             Spacer(Modifier.width(8.dp))
             Text("분석하기")
