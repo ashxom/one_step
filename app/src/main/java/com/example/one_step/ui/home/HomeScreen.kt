@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +49,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.one_step.R
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.navigation.AppDestination
 import com.example.one_step.ui.theme.OneStepBackground
 import com.example.one_step.ui.theme.OneStepBlue
@@ -64,9 +67,11 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit,
+    repository: GuideLocalRepository? = null,
     viewModel: HomeViewModel = viewModel(),
 ) {
-    val state = viewModel.uiState
+    repository?.let(viewModel::attachRepository)
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -269,7 +274,7 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                 Spacer(Modifier.width(6.dp))
                 Text("진행 중인 안내문", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
             }
-            Text("1개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
+            Text(if (state.completedSteps >= state.totalSteps) "완료" else "1개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
         }
         Card(colors = CardDefaults.cardColors(containerColor = OneStepSurface), shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -285,7 +290,7 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     Text("${state.completedSteps}/${state.totalSteps} 완료", style = MaterialTheme.typography.bodySmall, color = OneStepBlue, modifier = Modifier.clip(CircleShape).background(OneStepBlueSoft).padding(horizontal = 8.dp, vertical = 4.dp))
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("마지막 단계: 참가 동의 서명하기", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+                    Text("마지막 단계: ${state.nextActionTitle}", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted, maxLines = 1)
                     Text("${(progress * 100).roundToInt()}%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
                 Box(
@@ -308,9 +313,15 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    StepChip("✓ 1. 일정 확인", OneStepSuccessSoft, OneStepSuccess)
-                    StepChip("✓ 2. 준비물 체크", OneStepSuccessSoft, OneStepSuccess)
-                    StepChip("● 3. 동의 서명", OneStepBlueSoft, OneStepBlue)
+                    state.activeActionTitles.forEachIndexed { index, label ->
+                        val actionId = state.activeActionIds.getOrNull(index)
+                        val completed = actionId != null && actionId in state.completedActionIds
+                        StepChip(
+                            label = "${if (completed) "✓" else "●"} $label",
+                            color = if (completed) OneStepSuccessSoft else OneStepBlueSoft,
+                            textColor = if (completed) OneStepSuccess else OneStepBlue,
+                        )
+                    }
                 }
                 Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().clickable(onClick = onResume)) {
                     Row(Modifier.padding(vertical = 14.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
