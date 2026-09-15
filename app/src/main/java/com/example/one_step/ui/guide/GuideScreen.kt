@@ -89,6 +89,8 @@ fun GuideScreen(
     }
     when (val current = state) {
         GuideUiState.Empty -> GuideEmptyScreen(onBack)
+        GuideUiState.Loading -> GuideLoadingScreen(onBack)
+        is GuideUiState.Error -> GuideErrorScreen(current.message, onBack)
         is GuideUiState.Running -> GuideRunningScreen(
             state = current,
             onBack = { stopSpeech(); onBack() },
@@ -269,6 +271,32 @@ private fun GuideEmptyScreen(onBack: () -> Unit) {
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text("분석 결과에서 한걸음씩 시작하기를 눌러주세요.", style = MaterialTheme.typography.titleMedium, color = OneStepText, modifier = Modifier.padding(bottom = 20.dp))
             Button(onClick = onBack, colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = OneStepBlue), shape = RoundedCornerShape(16.dp)) { Text("돌아가기") }
+        }
+    }
+}
+
+@Composable
+private fun GuideLoadingScreen(onBack: () -> Unit) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+        GuideHeader(onBack)
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            androidx.compose.material3.CircularProgressIndicator(color = OneStepBlue)
+            Spacer(Modifier.height(16.dp))
+            Text("저장된 분석 결과를 불러오는 중이에요.", style = MaterialTheme.typography.bodyLarge, color = OneStepTextMuted)
+        }
+    }
+}
+
+@Composable
+private fun GuideErrorScreen(message: String, onBack: () -> Unit) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+        GuideHeader(onBack)
+        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(message, style = MaterialTheme.typography.titleMedium, color = OneStepText)
+            Spacer(Modifier.height(20.dp))
+            Button(onClick = onBack, colors = ButtonDefaults.buttonColors(containerColor = OneStepBlue), shape = RoundedCornerShape(16.dp)) {
+                Text("돌아가기")
+            }
         }
     }
 }
