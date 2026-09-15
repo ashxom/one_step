@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 sealed interface AnalysisUiState {
     data object Idle : AnalysisUiState
     data object Loading : AnalysisUiState
-    data class Success(val result: AnalysisResult) : AnalysisUiState
+    data class Success(val result: AnalysisResult, val persistenceWarning: String? = null) : AnalysisUiState
     data class Error(val message: String) : AnalysisUiState
 }
 
@@ -48,14 +48,16 @@ class AnalysisViewModel(
             uiState = AnalysisUiState.Loading
             try {
                 val result = analyzeDocument(documentText)
-                try {
+                val persistenceWarning = try {
                     localRepository?.saveAnalysis(documentText, result)
+                    null
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Throwable) {
+                    "분석 결과는 확인할 수 있지만 기록에 저장하지 못했어요."
                 }
                 if (requestId == latestRequestId) {
-                    uiState = AnalysisUiState.Success(result)
+                    uiState = AnalysisUiState.Success(result, persistenceWarning)
                 }
             } catch (error: Throwable) {
                 if (error is CancellationException) throw error
