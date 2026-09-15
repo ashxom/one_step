@@ -30,7 +30,7 @@ fun OneStepNavGraph(navController: NavHostController) {
     guideViewModel.attachLocalRepository(localRepository)
     NavHost(navController = navController, startDestination = AppDestination.Home.route) {
         composable(AppDestination.Home.route) {
-            HomeScreen(onNavigate = navController::navigate)
+            HomeScreen(onNavigate = navController::navigate, repository = localRepository)
         }
         composable(AppDestination.History.route) {
             HistoryScreen(
