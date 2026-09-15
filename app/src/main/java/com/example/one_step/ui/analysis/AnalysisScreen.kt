@@ -213,9 +213,16 @@ private fun AnalysisSummaryScreen(
             Spacer(Modifier.height(16.dp))
             val context = LocalContext.current
             var isSpeaking by remember { mutableStateOf(false) }
-            val speechController = remember(context) { GuideSpeechController(context) { isSpeaking = it } }
-            DisposableEffect(speechController) {
-                onDispose { speechController.shutdown() }
+            var speechError by remember { mutableStateOf<String?>(null) }
+            val speechController = remember(context) {
+                GuideSpeechController(
+                    context = context,
+                    onPlaybackStateChanged = { isSpeaking = it },
+                    onError = { speechError = it },
+                )
+            }
+            DisposableEffect(speechController, result) {
+                onDispose { speechController.stop() }
             }
             AudioSummaryButton(
                 isSpeaking = isSpeaking,
@@ -223,10 +230,23 @@ private fun AnalysisSummaryScreen(
                     if (isSpeaking) {
                         speechController.stop()
                     } else {
-                        speechController.speak("${result.tripTitle ?: result.title}. ${result.summary}")
+                        speechError = null
+                        isSpeaking = true
+                        speechController.speak(result.toSpeechSummary())
                     }
                 },
             )
+            DisposableEffect(speechController) {
+                onDispose { speechController.shutdown() }
+            }
+            speechError?.let { message ->
+                Text(
+                    text = message,
+                    color = Color(0xFFB3261E),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
             Spacer(Modifier.height(16.dp))
             DeadlineCard(result.deadline, result.deadlineBadge, result.deadlineDescription)
             Spacer(Modifier.height(12.dp))
@@ -358,9 +378,23 @@ private fun AudioSummaryButton(isSpeaking: Boolean, onClick: () -> Unit) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.AutoMirrored.Filled.VolumeUp, null, tint = OneStepBlue)
             Spacer(Modifier.width(10.dp))
-            Text(if (isSpeaking) "요약을 들려드리고 있어요" else "소리로 요약 들어보기", fontSize = 14.sp, color = OneStepBlue, modifier = Modifier.weight(1f))
+            Text(if (isSpeaking) "요약을 들려드리고 있어요 · 탭하여 중지" else "소리로 요약 들어보기", fontSize = 14.sp, color = OneStepBlue, modifier = Modifier.weight(1f))
             Icon(Icons.Default.PlayArrow, null, tint = OneStepTextMuted, modifier = Modifier.size(22.dp))
         }
+    }
+}
+
+private fun AnalysisResult.toSpeechSummary(): String = buildString {
+    append(tripTitle ?: title)
+    summary.takeIf { it.isNotBlank() }?.let { append(". ").append(it) }
+    actions.take(3).takeIf { it.isNotEmpty() }?.let { actionItems ->
+        append(". 해야 할 일은 ")
+        append(actionItems.joinToString(", ") { it.title })
+        append("입니다")
+    }
+    deadline?.takeIf { it.isNotBlank() }?.let { append(". 제출 기한은 ").append(it).append("입니다") }
+    items.take(3).takeIf { it.isNotEmpty() }?.let { itemList ->
+        append(". 준비물은 ").append(itemList.joinToString(", ")).append("입니다")
     }
 }
 
