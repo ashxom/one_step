@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -124,7 +122,7 @@ fun GuideScreen(
 @Composable
 private fun GuideHeader(onBack: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
@@ -155,7 +153,7 @@ private fun GuideRunningScreen(
 ) {
     val action = state.result.actions[state.currentIndex]
     val progress = (state.currentIndex + 1).toFloat() / state.result.actions.size
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
@@ -236,7 +234,7 @@ private fun GuideRunningScreen(
 
 @Composable
 private fun GuideCompletedScreen(state: GuideUiState.Completed, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 20.dp),
@@ -271,7 +269,7 @@ private fun GuideCompletedScreen(state: GuideUiState.Completed, onBack: () -> Un
 
 @Composable
 private fun GuideEmptyScreen(onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text("분석 결과에서 한걸음씩 시작하기를 눌러주세요.", style = MaterialTheme.typography.titleMedium, color = OneStepText, modifier = Modifier.padding(bottom = 20.dp))
@@ -282,7 +280,7 @@ private fun GuideEmptyScreen(onBack: () -> Unit) {
 
 @Composable
 private fun GuideLoadingScreen(onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             androidx.compose.material3.CircularProgressIndicator(color = OneStepBlue)
@@ -294,7 +292,7 @@ private fun GuideLoadingScreen(onBack: () -> Unit) {
 
 @Composable
 private fun GuideErrorScreen(message: String, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text(message, style = MaterialTheme.typography.titleMedium, color = OneStepText)
