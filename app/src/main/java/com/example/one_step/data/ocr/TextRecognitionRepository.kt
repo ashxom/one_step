@@ -36,7 +36,7 @@ class MlKitTextRecognitionRepository(context: Context) : TextRecognitionReposito
     }
 }
 
-class EmptyTextException : IllegalStateException("텍스트를 찾지 못했어요. 안내문을 다시 촬영해 주세요.")
+class EmptyTextException : IllegalStateException("텍스트를 찾지 못했어요.")
 
 private suspend fun <T> Task<T>.awaitResult(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { value ->
