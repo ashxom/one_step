@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -122,7 +121,7 @@ fun AnalysisScreen(
 @Composable
 private fun AnalysisLoadingScreen(onBack: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxSize().background(OneStepBackground).padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         AnalysisHeader("한걸음 안내", onBack)
@@ -572,7 +571,7 @@ private fun formatDeadline(value: String?): String {
 @Composable
 private fun AnalysisHeaderBar(onBack: () -> Unit) {
     Surface(color = OneStepBackground, shadowElevation = 2.dp) {
-        Row(Modifier.fillMaxWidth().statusBarsPadding().height(64.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "뒤로 가기", tint = OneStepText) }
             Text("한걸음 안내", fontSize = 18.sp, color = OneStepText, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.weight(1f))
@@ -612,7 +611,7 @@ private fun SummaryCard(
 
 @Composable
 private fun AnalysisErrorScreen(message: String, onBack: () -> Unit, onRetry: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(Icons.Default.ErrorOutline, null, tint = OneStepBlue, modifier = Modifier.size(52.dp))
         Spacer(Modifier.size(16.dp))
         Text(message, style = MaterialTheme.typography.bodyLarge, color = OneStepText)
