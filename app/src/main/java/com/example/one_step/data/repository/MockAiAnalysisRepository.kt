@@ -13,9 +13,9 @@ class MockAiAnalysisRepository : AiAnalysisRepository {
             documentType = "가정통신문",
             summary = "중요한 일정과 준비물을 알기 쉽게 모았어요.",
             actions = listOf(
-                ActionItem("consent", "동의서 서명", "보호자 동의서에 서명해요.", 5),
-                ActionItem("payment", "참가비 확인", "참가비를 스쿨뱅킹으로 이체해요.", 3),
-                ActionItem("items", "준비물 확인", "체험학습 준비물을 챙겨요.", 10),
+                ActionItem("consent", "보호자 동의서 작성", "보호자 동의서에 서명해요.", 5),
+                ActionItem("payment", "참가비 준비", "참가비 20,000원을 준비해요.", 3),
+                ActionItem("submission", "서류 제출", "본관 1층 행정실에 서류를 제출해요.", 5),
             ),
             deadline = "9월 18일(수) 까지",
             location = "본관 1층 행정실",
