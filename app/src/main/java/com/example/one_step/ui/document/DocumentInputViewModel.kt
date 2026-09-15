@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.one_step.data.document.DefaultDocumentImportRepository
 import com.example.one_step.data.document.EmptyDocumentException
 import com.example.one_step.data.document.UnsupportedDocumentException
+import com.example.one_step.data.ocr.EmptyTextException
 import com.example.one_step.data.ocr.MlKitTextRecognitionRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -68,6 +69,7 @@ class DocumentInputViewModel(application: Application) : AndroidViewModel(applic
     private fun errorMessage(error: Throwable): String = when (error) {
         is CancellationException -> throw error
         is UnsupportedDocumentException -> error.message.orEmpty()
+        is EmptyTextException -> "텍스트를 찾지 못했어요. 다른 이미지 파일을 선택해 주세요."
         is EmptyDocumentException -> error.message.orEmpty()
         else -> "파일 내용을 읽지 못했습니다. 다른 파일로 다시 시도해 주세요."
     }

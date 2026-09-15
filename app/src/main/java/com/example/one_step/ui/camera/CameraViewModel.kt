@@ -20,6 +20,11 @@ enum class OcrStep(val label: String) {
     CREATE_STEPS("할 일을 한걸음씩 만들기"),
 }
 
+enum class OcrInputSource {
+    CAMERA,
+    GALLERY,
+}
+
 sealed interface OcrState {
     data object Idle : OcrState
     data class Loading(val step: OcrStep) : OcrState
@@ -62,14 +67,16 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onCaptureFailed(message: String) {
-        update { it.copy(ocrState = OcrState.Error(message)) }
+        viewModelScope.launch {
+            update { it.copy(ocrState = OcrState.Error(message)) }
+        }
     }
 
     fun onImageSelectionCancelled() {
         update { it.copy(ocrState = OcrState.Error("이미지 선택이 취소되었습니다.")) }
     }
 
-    fun recognize(uri: Uri) {
+    fun recognize(uri: Uri, source: OcrInputSource = OcrInputSource.CAMERA) {
         if (!recognitionInProgress.compareAndSet(false, true)) return
         viewModelScope.launch {
             try {
@@ -86,7 +93,10 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
                     onFailure = { error ->
                         if (error is CancellationException) throw error
                         val message = when (error) {
-                            is EmptyTextException -> error.message.orEmpty()
+                            is EmptyTextException -> when (source) {
+                                OcrInputSource.CAMERA -> "텍스트를 찾지 못했어요. 안내문을 다시 촬영해 주세요."
+                                OcrInputSource.GALLERY -> "텍스트를 찾지 못했어요. 다른 이미지를 선택해 주세요."
+                            }
                             else -> "이미지의 글자를 읽지 못했습니다. 다시 촬영해 주세요."
                         }
                         update { it.copy(ocrState = OcrState.Error(message)) }

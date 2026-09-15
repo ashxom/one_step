@@ -19,18 +19,23 @@ import com.example.one_step.ui.guide.GuideViewModel
 import com.example.one_step.ui.history.HistoryScreen
 import com.example.one_step.ui.home.HomeScreen
 import com.example.one_step.ui.settings.SettingsScreen
+import com.example.one_step.domain.repository.SettingsRepository
 
 @Composable
-fun OneStepNavGraph(navController: NavHostController) {
+fun OneStepNavGraph(
+    navController: NavHostController,
+    settingsRepository: SettingsRepository? = null,
+) {
     val context = LocalContext.current
     val documentSession: DocumentSessionViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val guideViewModel: GuideViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val localRepository = remember(context) { RoomGuideLocalRepository(OneStepDatabase.getInstance(context).guideDocumentDao()) }
-    val settingsRepository = remember(context) { DataStoreSettingsRepository(context) }
+    val resolvedSettingsRepository = settingsRepository
+        ?: remember(context) { DataStoreSettingsRepository(context) }
     guideViewModel.attachLocalRepository(localRepository)
     NavHost(navController = navController, startDestination = AppDestination.Home.route) {
         composable(AppDestination.Home.route) {
-            HomeScreen(onNavigate = navController::navigate)
+            HomeScreen(onNavigate = navController::navigate, repository = localRepository)
         }
         composable(AppDestination.History.route) {
             HistoryScreen(
@@ -42,7 +47,7 @@ fun OneStepNavGraph(navController: NavHostController) {
             )
         }
         composable(AppDestination.Settings.route) {
-            SettingsScreen(repository = settingsRepository, localRepository = localRepository)
+            SettingsScreen(repository = resolvedSettingsRepository, localRepository = localRepository)
         }
         composable(AppDestination.Camera.route) {
             CameraScreen(

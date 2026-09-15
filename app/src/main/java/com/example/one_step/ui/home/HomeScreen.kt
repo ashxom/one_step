@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +49,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.one_step.R
+import com.example.one_step.domain.repository.GuideLocalRepository
 import com.example.one_step.navigation.AppDestination
 import com.example.one_step.ui.theme.OneStepBackground
 import com.example.one_step.ui.theme.OneStepBlue
@@ -64,9 +67,11 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit,
+    repository: GuideLocalRepository? = null,
     viewModel: HomeViewModel = viewModel(),
 ) {
-    val state = viewModel.uiState
+    repository?.let(viewModel::attachRepository)
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,10 +92,14 @@ fun HomeScreen(
                 onFileClick = { onNavigate(AppDestination.FileImport.route) },
                 onDirectInputClick = { onNavigate(AppDestination.DirectInput.route) },
             )
-            ActiveDocumentSection(
-                state = state,
-                onResume = { onNavigate(AppDestination.Guide.route) },
-            )
+            if (state.hasActiveDocument) {
+                ActiveDocumentSection(
+                    state = state,
+                    onResume = { onNavigate(AppDestination.Guide.route) },
+                )
+            } else {
+                EmptyDocumentSection(onStart = { onNavigate(AppDestination.Camera.route) })
+            }
             HowItWorksCard()
             TrustMessage()
         }
@@ -269,7 +278,8 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                 Spacer(Modifier.width(6.dp))
                 Text("진행 중인 안내문", style = MaterialTheme.typography.bodyMedium, color = OneStepTextMuted)
             }
-            Text("1개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
+            val remainingSteps = (state.totalSteps - state.completedSteps).coerceAtLeast(0)
+            Text(if (remainingSteps == 0) "완료" else "${remainingSteps}개 남음", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
         }
         Card(colors = CardDefaults.cardColors(containerColor = OneStepSurface), shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -285,7 +295,12 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     Text("${state.completedSteps}/${state.totalSteps} 완료", style = MaterialTheme.typography.bodySmall, color = OneStepBlue, modifier = Modifier.clip(CircleShape).background(OneStepBlueSoft).padding(horizontal = 8.dp, vertical = 4.dp))
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("마지막 단계: 참가 동의 서명하기", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+                    Text(
+                        if (state.completedSteps >= state.totalSteps) "모든 단계 완료" else "다음 단계: ${state.nextActionTitle}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OneStepTextMuted,
+                        maxLines = 1,
+                    )
                     Text("${(progress * 100).roundToInt()}%", style = MaterialTheme.typography.bodySmall, color = OneStepBlue)
                 }
                 Box(
@@ -308,9 +323,15 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    StepChip("✓ 1. 일정 확인", OneStepSuccessSoft, OneStepSuccess)
-                    StepChip("✓ 2. 준비물 체크", OneStepSuccessSoft, OneStepSuccess)
-                    StepChip("● 3. 동의 서명", OneStepBlueSoft, OneStepBlue)
+                    state.activeActionTitles.forEachIndexed { index, label ->
+                        val actionId = state.activeActionIds.getOrNull(index)
+                        val completed = actionId != null && actionId in state.completedActionIds
+                        StepChip(
+                            label = "${if (completed) "✓" else "●"} $label",
+                            color = if (completed) OneStepSuccessSoft else OneStepBlueSoft,
+                            textColor = if (completed) OneStepSuccess else OneStepBlue,
+                        )
+                    }
                 }
                 Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().clickable(onClick = onResume)) {
                     Row(Modifier.padding(vertical = 14.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -318,6 +339,32 @@ private fun ActiveDocumentSection(state: HomeUiState, onResume: () -> Unit) {
                         Spacer(Modifier.width(8.dp))
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = OneStepBlue, modifier = Modifier.size(16.dp))
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyDocumentSection(onStart: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = OneStepSurface),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("진행 중인 안내문이 없어요", style = MaterialTheme.typography.titleMedium, color = OneStepText)
+            Text("안내문을 넣으면 해야 할 일을 한걸음씩 정리해 드릴게요.", style = MaterialTheme.typography.bodySmall, color = OneStepTextMuted)
+            Surface(
+                color = OneStepBlueSoft,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onStart),
+            ) {
+                Row(Modifier.padding(vertical = 14.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    Text("안내문 넣기", style = MaterialTheme.typography.labelLarge, color = OneStepBlue)
+                    Spacer(Modifier.width(8.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = OneStepBlue, modifier = Modifier.size(16.dp))
                 }
             }
         }

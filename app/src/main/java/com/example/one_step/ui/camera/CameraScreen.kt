@@ -86,7 +86,7 @@ fun CameraScreen(
         if (granted) viewModel.reset() else viewModel.onCameraError("카메라 권한이 거부되었습니다.")
     }
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri == null) viewModel.onImageSelectionCancelled() else viewModel.recognize(uri)
+        if (uri == null) viewModel.onImageSelectionCancelled() else viewModel.recognize(uri, OcrInputSource.GALLERY)
     }
 
     LaunchedEffect(Unit) {
@@ -118,7 +118,11 @@ fun CameraScreen(
             bindAttempt = cameraBindAttempt,
             onReady = viewModel::onCameraReady,
             onCameraError = { viewModel.onCameraError("카메라를 시작하지 못했습니다.") },
-            onCapture = { controller.capture(viewModel::recognize) { viewModel.onCaptureFailed("사진을 촬영하지 못했습니다.") } },
+            onCapture = {
+                controller.capture(
+                    { uri -> viewModel.recognize(uri, OcrInputSource.CAMERA) },
+                ) { viewModel.onCaptureFailed("사진을 촬영하지 못했습니다.") }
+            },
             onPickGallery = { galleryLauncher.launch("image/*") },
             onToggleFlash = { viewModel.toggleFlash(controller::setFlashEnabled) },
             onRetry = {

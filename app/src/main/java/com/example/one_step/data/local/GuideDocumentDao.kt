@@ -32,14 +32,16 @@ abstract class GuideDocumentDao {
     }
 
     @Query("UPDATE guide_actions SET completed = 1 WHERE documentId = :documentId AND id = :actionId")
-    protected abstract suspend fun markActionCompleted(documentId: String, actionId: String)
+    protected abstract suspend fun markActionCompleted(documentId: String, actionId: String): Int
 
     @Query("UPDATE guide_documents SET isCompleted = 1 WHERE id = :documentId AND NOT EXISTS (SELECT 1 FROM guide_actions WHERE documentId = :documentId AND completed = 0)")
     protected abstract suspend fun updateDocumentCompletion(documentId: String)
 
     @Transaction
     open suspend fun markActionCompletedAndUpdateDocument(documentId: String, actionId: String) {
-        markActionCompleted(documentId, actionId)
+        check(markActionCompleted(documentId, actionId) == 1) {
+            "완료할 행동을 찾지 못했습니다."
+        }
         updateDocumentCompletion(documentId)
     }
 
