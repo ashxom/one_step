@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -113,7 +114,7 @@ fun AnalysisScreen(
     when (val state = viewModel.uiState) {
         AnalysisUiState.Idle -> AnalysisLoadingScreen(onBack)
         AnalysisUiState.Loading -> AnalysisLoadingScreen(onBack)
-        is AnalysisUiState.Success -> AnalysisSummaryScreen(state.result, documentText, state.persistenceWarning, onBack, onStartGuide)
+        is AnalysisUiState.Success -> AnalysisSummaryScreen(state.result, documentText, state.persistenceWarning, state.canStartGuide, onBack, onStartGuide)
         is AnalysisUiState.Error -> AnalysisErrorScreen(state.message, onBack) { viewModel.analyze(documentText.orEmpty()) }
     }
 }
@@ -176,6 +177,7 @@ private fun AnalysisSummaryScreen(
     result: AnalysisResult,
     documentText: String?,
     persistenceWarning: String?,
+    canStartGuide: Boolean,
     onBack: () -> Unit,
     onStartGuide: (AnalysisResult) -> Unit,
 ) {
@@ -205,7 +207,7 @@ private fun AnalysisSummaryScreen(
                     Text(message, color = OneStepTextMuted, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp))
                 }
             }
-            DocumentHero(result, modifier = Modifier.height(184.dp))
+            DocumentHero(result, modifier = Modifier.heightIn(min = 184.dp))
             Spacer(Modifier.height(37.dp))
             ExperienceImageCard(result.tripTitle ?: result.title, result.targetGrade)
             Spacer(Modifier.height(16.dp))
@@ -236,7 +238,7 @@ private fun AnalysisSummaryScreen(
             Spacer(Modifier.height(11.dp))
             EncouragementCard(result.encouragement, modifier = Modifier.padding(top = 20.dp))
             Spacer(Modifier.height(32.dp))
-            StartGuideButton(onClick = { onStartGuide(result) })
+            StartGuideButton(enabled = canStartGuide, onClick = { onStartGuide(result) })
             Spacer(Modifier.height(12.dp))
             var showWordHelp by remember { mutableStateOf(false) }
             var showEditRequest by remember { mutableStateOf(false) }
@@ -364,7 +366,7 @@ private fun AudioSummaryButton(isSpeaking: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun DeadlineCard(deadline: String?, badge: String?, description: String?) {
-    SummaryCard(title = "제출 기한", icon = Icons.Default.CalendarMonth, iconBackground = OneStepBlueSoft, modifier = Modifier.height(129.dp)) {
+    SummaryCard(title = "제출 기한", icon = Icons.Default.CalendarMonth, iconBackground = OneStepBlueSoft, modifier = Modifier.heightIn(min = 129.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column {
                 Text(formatDeadline(deadline), fontSize = 21.sp, lineHeight = 26.sp, color = Color(0xFFBA1A1A), fontWeight = FontWeight.Bold)
@@ -381,9 +383,9 @@ private fun DeadlineCard(deadline: String?, badge: String?, description: String?
 @Composable
 private fun LocationCard(location: String?, description: String?) {
     val context = LocalContext.current
-    SummaryCard(title = "제출할 곳", icon = Icons.Default.LocationOn, containerColor = OneStepSurface, iconBackground = Color(0x806FFBBE), iconTint = OneStepSuccess, modifier = Modifier.height(120.dp)) {
+    SummaryCard(title = "제출할 곳", icon = Icons.Default.LocationOn, containerColor = OneStepSurface, iconBackground = Color(0x806FFBBE), iconTint = OneStepSuccess, modifier = Modifier.heightIn(min = 120.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-            Text(location ?: "확인 필요", fontSize = 19.sp, color = OneStepText, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text(location ?: "확인 필요", fontSize = 19.sp, color = OneStepText, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             Text(
                 "지도 확인 ›",
                 fontSize = 13.sp,
@@ -407,7 +409,7 @@ private fun ItemsCard(items: List<String>, cost: String?) {
         icon = Icons.AutoMirrored.Filled.Rule,
         iconBackground = Color(0xFFFFDDB8),
         iconTint = Color(0xFF996100),
-        modifier = Modifier.height(136.dp),
+        modifier = Modifier.heightIn(min = 136.dp),
         headerTrailing = {
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(6.dp)) {
                 Text("${items.size + if (cost.isNullOrBlank()) 0 else 1}가지", fontSize = 13.sp, color = OneStepBlue, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -433,7 +435,13 @@ private fun BulletItem(value: String, emphasizeAmount: Boolean = false) {
                 }
             }
         } else androidx.compose.ui.text.AnnotatedString(value)
-        Text(text, fontSize = 18.sp, color = OneStepText, maxLines = 1, softWrap = false)
+        Text(
+            text,
+            fontSize = 18.sp,
+            lineHeight = 24.sp,
+            color = OneStepText,
+            modifier = Modifier.weight(1f),
+        )
     }
 }
 
@@ -444,7 +452,7 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
         colors = CardDefaults.cardColors(containerColor = OneStepSurface),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth().height(78.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 78.dp),
     ) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(color = OneStepBlueSoft, shape = RoundedCornerShape(8.dp), modifier = Modifier.size(32.dp)) {
@@ -477,7 +485,7 @@ private fun PhoneCard(phone: String?, phoneLabel: String?) {
 
 @Composable
 private fun EncouragementCard(encouragement: String?, modifier: Modifier = Modifier) {
-    Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth().height(96.dp)) {
+    Surface(color = Color(0xFFF2F3FF), shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth().heightIn(min = 96.dp)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
             Icon(Icons.Default.Lightbulb, null, tint = OneStepBlue, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(12.dp))
@@ -507,9 +515,10 @@ private fun AuxiliaryActions(onWordHelp: () -> Unit, onEditRequest: () -> Unit) 
 }
 
 @Composable
-private fun StartGuideButton(onClick: () -> Unit) {
+private fun StartGuideButton(enabled: Boolean = true, onClick: () -> Unit) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth().height(60.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
