@@ -64,6 +64,29 @@ class GuideViewModelTest {
     }
 
     @Test
+    fun selectsFirstIncompleteActionWhenCompletedIdsAreNonSequential() {
+        val result = sampleResult()
+        val repository = ImmediateGuideLocalRepository(
+            GuideRecord(
+                id = analysisDocumentId("", result),
+                documentText = "",
+                analysisDate = 0L,
+                result = result,
+                completedActionIds = setOf("2"),
+            ),
+        )
+        val viewModel = GuideViewModel()
+        viewModel.attachLocalRepository(repository)
+
+        viewModel.start(result)
+        assertEquals(0, (viewModel.uiState.value as GuideUiState.Running).currentIndex)
+
+        viewModel.completeCurrent()
+
+        assertEquals(2, (viewModel.uiState.value as GuideUiState.Running).currentIndex)
+    }
+
+    @Test
     fun keepsNewGuideStateWhenPreviousCompletionFinishesLate() {
         val repository = DelayedGuideLocalRepository()
         val viewModel = GuideViewModel()
@@ -139,6 +162,22 @@ class GuideViewModelTest {
         override suspend fun markActionCompleted(documentId: String, actionId: String) {
             markStarted.complete(Unit)
             allowMark.await()
+        }
+
+        override suspend fun clearAll() = Unit
+    }
+
+    private class ImmediateGuideLocalRepository(
+        private var record: GuideRecord,
+    ) : GuideLocalRepository {
+        override suspend fun saveAnalysis(documentText: String, result: AnalysisResult): String = record.id
+
+        override fun observeRecords(): Flow<List<GuideRecord>> = flowOf(listOf(record))
+
+        override suspend fun getRecord(documentId: String): GuideRecord? = record.takeIf { it.id == documentId }
+
+        override suspend fun markActionCompleted(documentId: String, actionId: String) {
+            record = record.copy(completedActionIds = record.completedActionIds + actionId)
         }
 
         override suspend fun clearAll() = Unit
