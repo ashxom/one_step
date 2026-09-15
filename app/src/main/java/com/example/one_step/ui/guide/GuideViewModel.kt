@@ -14,6 +14,9 @@ import kotlinx.coroutines.launch
 
 sealed interface GuideUiState {
     data object Empty : GuideUiState
+    data object Loading : GuideUiState
+
+    data class Error(val message: String) : GuideUiState
 
     data class Running(
         val result: AnalysisResult,
@@ -57,21 +60,31 @@ class GuideViewModel : ViewModel() {
             _uiState.value = GuideUiState.Completed(result, emptyList())
         } else {
             val documentId = analysisDocumentId(documentText.orEmpty(), result)
-            _uiState.value = GuideUiState.Running(result, currentIndex = 0, documentId = documentId)
+            val repository = localRepository
+            if (repository == null) {
+                // 저장소가 없는 Preview/단위 테스트 환경에서는 메모리 가이드만 허용한다.
+                _uiState.value = GuideUiState.Running(result, currentIndex = 0, documentId = documentId)
+                return
+            }
+            _uiState.value = GuideUiState.Loading
+            val startSessionToken = sessionToken
             viewModelScope.launch {
-                val record = runCatching { localRepository?.getRecord(documentId) }.getOrNull() ?: return@launch
+                val record = runCatching { repository.getRecord(documentId) }.getOrNull()
+                if (startSessionToken != sessionToken) return@launch
+                if (record == null || record.id != documentId) {
+                    _uiState.value = GuideUiState.Error("분석 결과를 저장하지 못했어요. 분석 화면으로 돌아가 다시 시도해 주세요.")
+                    return@launch
+                }
                 val completedIds = record.completedActionIds
-                if (completedIds.isEmpty()) return@launch
                 if (result.actions.all { it.id in completedIds }) {
                     _uiState.value = GuideUiState.Completed(result, result.actions)
                 } else {
-                    val current = _uiState.value as? GuideUiState.Running ?: return@launch
-                    if (current.documentId == documentId) {
-                        _uiState.value = current.copy(
-                            currentIndex = result.actions.indexOfFirst { it.id !in completedIds }.coerceAtLeast(0),
-                            completedIds = completedIds,
-                        )
-                    }
+                    _uiState.value = GuideUiState.Running(
+                        result = result,
+                        currentIndex = result.actions.indexOfFirst { it.id !in completedIds }.coerceAtLeast(0),
+                        documentId = documentId,
+                        completedIds = completedIds,
+                    )
                 }
             }
         }
