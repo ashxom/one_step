@@ -104,11 +104,9 @@ class GuideViewModel : ViewModel() {
                 if (state.result.actions.all { it.id in completedIds }) {
                     _uiState.value = GuideUiState.Completed(state.result, state.result.actions)
                 } else {
-                    val nextIndex = if (state.currentIndex == state.result.actions.lastIndex) {
-                        state.result.actions.indexOfFirst { it.id !in completedIds }.coerceAtLeast(0)
-                    } else {
-                        state.currentIndex + 1
-                    }
+                    val nextIndex = state.result.actions
+                        .indexOfFirst { it.id !in completedIds }
+                        .coerceAtLeast(0)
                     _uiState.value = state.copy(
                         currentIndex = nextIndex,
                         completedIds = completedIds,
