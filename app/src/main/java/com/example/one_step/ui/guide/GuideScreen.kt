@@ -76,7 +76,12 @@ fun GuideScreen(
     repository?.let(viewModel::attachLocalRepository)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val speechController = remember(context) { GuideSpeechController(context) { viewModel.setSpeaking(it) } }
+    val speechController = remember(context) {
+        GuideSpeechController(
+            context = context,
+            onPlaybackStateChanged = viewModel::setSpeaking,
+        )
+    }
     DisposableEffect(speechController) {
         onDispose { speechController.shutdown() }
     }
