@@ -54,6 +54,7 @@ class DocumentInputViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun submitText(rawText: String) {
+        if (state is DocumentInputState.Loading || state is DocumentInputState.Success) return
         val text = rawText.trim()
         if (text.isBlank()) {
             state = DocumentInputState.Error("안내문 내용을 입력해 주세요.")

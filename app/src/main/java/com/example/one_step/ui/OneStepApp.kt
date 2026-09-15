@@ -1,7 +1,10 @@
 package com.example.one_step.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -52,6 +55,7 @@ fun OneStepApp() {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 containerColor = OneStepBackground,
+                contentWindowInsets = WindowInsets.safeDrawing,
                 bottomBar = {
                     if (showBottomNavigation) {
                         OneStepBottomNavigation(
@@ -67,7 +71,11 @@ fun OneStepApp() {
                     }
                 },
             ) { innerPadding ->
-                androidx.compose.foundation.layout.Box(Modifier.padding(innerPadding)) {
+                androidx.compose.foundation.layout.Box(
+                    Modifier
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding),
+                ) {
                     OneStepNavGraph(navController, settingsRepository)
                 }
             }
