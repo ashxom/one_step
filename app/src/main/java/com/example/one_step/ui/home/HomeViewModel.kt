@@ -28,6 +28,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun GuideRecord.toHomeState(): HomeUiState = HomeUiState(
+        hasActiveDocument = true,
         activeDocumentTitle = result.title,
         activeDocumentSource = listOfNotNull(result.documentType, result.deadlineBadge ?: result.deadline).joinToString(" • "),
         completedSteps = completedActionIds.size.coerceAtMost(result.actions.size),
@@ -40,12 +41,13 @@ class HomeViewModel : ViewModel() {
 }
 
 data class HomeUiState(
-    val activeDocumentTitle: String = "현장체험학습 참가 신청서",
-    val activeDocumentSource: String = "늘솔초등학교 • 마감 D-2",
-    val completedSteps: Int = 2,
-    val totalSteps: Int = 3,
-    val activeActionIds: List<String> = listOf("1", "2", "3"),
-    val activeActionTitles: List<String> = listOf("1. 일정 확인", "2. 준비물 체크", "3. 동의 서명"),
-    val completedActionIds: Set<String> = setOf("1", "2"),
-    val nextActionTitle: String = "참가 동의 서명하기",
+    val hasActiveDocument: Boolean = false,
+    val activeDocumentTitle: String = "",
+    val activeDocumentSource: String = "",
+    val completedSteps: Int = 0,
+    val totalSteps: Int = 0,
+    val activeActionIds: List<String> = emptyList(),
+    val activeActionTitles: List<String> = emptyList(),
+    val completedActionIds: Set<String> = emptySet(),
+    val nextActionTitle: String = "",
 )
