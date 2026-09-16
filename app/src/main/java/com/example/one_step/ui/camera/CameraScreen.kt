@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -214,7 +213,7 @@ private fun CameraControls(
     onPickGallery: () -> Unit,
     onToggleFlash: () -> Unit,
 ) {
-    Column(Modifier.fillMaxSize().statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.Default.Close, "촬영 취소", tint = Color.White) }
             Text("안내문 촬영", style = MaterialTheme.typography.titleLarge, color = Color.White)
@@ -309,7 +308,7 @@ private fun PermissionScreen(
     onBack: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(24.dp),
+        modifier = Modifier.fillMaxSize().background(OneStepBackground).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -326,7 +325,7 @@ private fun PermissionScreen(
 
 @Composable
 private fun OcrSuccessScreen(text: String, onAnalyze: (String) -> Unit, onRetake: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().padding(20.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(OneStepBackground).padding(20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.CheckCircle, null, tint = OneStepBlue, modifier = Modifier.size(28.dp))
             Spacer(Modifier.width(8.dp))

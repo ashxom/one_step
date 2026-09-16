@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,7 +58,7 @@ fun DirectInputScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(OneStepBackground).statusBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxSize().background(OneStepBackground).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -86,7 +85,11 @@ fun DirectInputScreen(
         if (state is DocumentInputState.Error) {
             Text(state.message, color = Color(0xFFB3261E), style = MaterialTheme.typography.bodySmall)
         }
-        Button(onClick = { viewModel.submitText(text) }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { viewModel.submitText(text) },
+            enabled = state !is DocumentInputState.Loading && state !is DocumentInputState.Success,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
             Icon(Icons.Default.AutoAwesome, null)
             Spacer(Modifier.width(8.dp))
             Text("분석하기")

@@ -25,6 +25,7 @@ sealed interface GuideUiState {
         val completedIds: Set<String> = emptySet(),
         val isPaused: Boolean = false,
         val isSpeaking: Boolean = false,
+        val speechError: String? = null,
         val isSaving: Boolean = false,
         val saveError: String? = null,
     ) : GuideUiState
@@ -112,6 +113,7 @@ class GuideViewModel : ViewModel() {
                         completedIds = completedIds,
                         isPaused = false,
                         isSpeaking = false,
+                        speechError = null,
                         isSaving = false,
                         saveError = null,
                     )
@@ -136,24 +138,34 @@ class GuideViewModel : ViewModel() {
     fun previous() {
         val state = _uiState.value as? GuideUiState.Running ?: return
         if (state.currentIndex > 0) {
-            _uiState.value = state.copy(currentIndex = state.currentIndex - 1, isSpeaking = false, saveError = null)
+            _uiState.value = state.copy(currentIndex = state.currentIndex - 1, isSpeaking = false, speechError = null, saveError = null)
         }
     }
 
     fun next() {
         val state = _uiState.value as? GuideUiState.Running ?: return
         if (state.currentIndex < state.result.actions.lastIndex) {
-            _uiState.value = state.copy(currentIndex = state.currentIndex + 1, isSpeaking = false, saveError = null)
+            _uiState.value = state.copy(currentIndex = state.currentIndex + 1, isSpeaking = false, speechError = null, saveError = null)
         }
     }
 
     fun togglePause() {
         val state = _uiState.value as? GuideUiState.Running ?: return
-        _uiState.value = state.copy(isPaused = !state.isPaused, isSpeaking = false)
+        _uiState.value = state.copy(isPaused = !state.isPaused, isSpeaking = false, speechError = null)
     }
 
     fun setSpeaking(isSpeaking: Boolean) {
         val state = _uiState.value as? GuideUiState.Running ?: return
         _uiState.value = state.copy(isSpeaking = isSpeaking)
+    }
+
+    fun setSpeechError(message: String) {
+        val state = _uiState.value as? GuideUiState.Running ?: return
+        _uiState.value = state.copy(isSpeaking = false, speechError = message)
+    }
+
+    fun clearSpeechError() {
+        val state = _uiState.value as? GuideUiState.Running ?: return
+        _uiState.value = state.copy(speechError = null)
     }
 }

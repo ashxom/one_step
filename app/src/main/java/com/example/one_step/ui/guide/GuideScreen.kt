@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -76,14 +74,6 @@ fun GuideScreen(
     repository?.let(viewModel::attachLocalRepository)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val speechController = remember(context) { GuideSpeechController(context) { viewModel.setSpeaking(it) } }
-    DisposableEffect(speechController) {
-        onDispose { speechController.shutdown() }
-    }
-    val stopSpeech = {
-        speechController.stop()
-        viewModel.setSpeaking(false)
-    }
     LaunchedEffect(repository) {
         if (repository != null && state is GuideUiState.Empty) viewModel.resumeLatest()
     }
@@ -91,27 +81,44 @@ fun GuideScreen(
         GuideUiState.Empty -> GuideEmptyScreen(onBack)
         GuideUiState.Loading -> GuideLoadingScreen(onBack)
         is GuideUiState.Error -> GuideErrorScreen(current.message, onBack)
-        is GuideUiState.Running -> GuideRunningScreen(
-            state = current,
-            onBack = { stopSpeech(); onBack() },
-            onPrevious = { stopSpeech(); viewModel.previous() },
-            onNext = { stopSpeech(); viewModel.next() },
-            onComplete = { stopSpeech(); viewModel.completeCurrent() },
-            onRetryComplete = { stopSpeech(); viewModel.retryCompleteCurrent() },
-            onPause = {
-                stopSpeech()
-                viewModel.togglePause()
-            },
-            onSpeak = {
-                if (current.isSpeaking) {
+        is GuideUiState.Running -> {
+            val speechController = remember(context) {
+                GuideSpeechController(
+                    context = context,
+                    onPlaybackStateChanged = viewModel::setSpeaking,
+                    onError = viewModel::setSpeechError,
+                )
+            }
+            DisposableEffect(speechController) {
+                onDispose { speechController.shutdown() }
+            }
+            val stopSpeech = {
+                speechController.stop()
+                viewModel.setSpeaking(false)
+            }
+            GuideRunningScreen(
+                state = current,
+                onBack = { stopSpeech(); onBack() },
+                onPrevious = { stopSpeech(); viewModel.previous() },
+                onNext = { stopSpeech(); viewModel.next() },
+                onComplete = { stopSpeech(); viewModel.completeCurrent() },
+                onRetryComplete = { stopSpeech(); viewModel.retryCompleteCurrent() },
+                onPause = {
                     stopSpeech()
-                } else {
-                    val action = current.result.actions[current.currentIndex]
-                    speechController.speak("${action.title}. ${action.description}")
-                    viewModel.setSpeaking(true)
-                }
-            },
-        )
+                    viewModel.togglePause()
+                },
+                onSpeak = {
+                    if (current.isSpeaking) {
+                        stopSpeech()
+                    } else {
+                        val action = current.result.actions[current.currentIndex]
+                        viewModel.clearSpeechError()
+                        speechController.speak("${action.title}. ${action.description}")
+                        viewModel.setSpeaking(true)
+                    }
+                },
+            )
+        }
         is GuideUiState.Completed -> GuideCompletedScreen(current, onBack)
     }
 }
@@ -119,7 +126,7 @@ fun GuideScreen(
 @Composable
 private fun GuideHeader(onBack: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
@@ -150,7 +157,7 @@ private fun GuideRunningScreen(
 ) {
     val action = state.result.actions[state.currentIndex]
     val progress = (state.currentIndex + 1).toFloat() / state.result.actions.size
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
@@ -193,6 +200,16 @@ private fun GuideRunningScreen(
                     Text(if (state.isSpeaking) "듣는 중…" else "음성으로 듣기", style = MaterialTheme.typography.bodyLarge, color = OneStepBlue, fontWeight = FontWeight.SemiBold)
                 }
             }
+            state.speechError?.let { message ->
+                Surface(color = Color(0xFFFFEDEC), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = message,
+                        color = Color(0xFFB3261E),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    )
+                }
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(onClick = onPrevious, enabled = state.currentIndex > 0, modifier = Modifier.weight(1f)) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -231,7 +248,7 @@ private fun GuideRunningScreen(
 
 @Composable
 private fun GuideCompletedScreen(state: GuideUiState.Completed, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 20.dp),
@@ -266,7 +283,7 @@ private fun GuideCompletedScreen(state: GuideUiState.Completed, onBack: () -> Un
 
 @Composable
 private fun GuideEmptyScreen(onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text("분석 결과에서 한걸음씩 시작하기를 눌러주세요.", style = MaterialTheme.typography.titleMedium, color = OneStepText, modifier = Modifier.padding(bottom = 20.dp))
@@ -277,7 +294,7 @@ private fun GuideEmptyScreen(onBack: () -> Unit) {
 
 @Composable
 private fun GuideLoadingScreen(onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             androidx.compose.material3.CircularProgressIndicator(color = OneStepBlue)
@@ -289,7 +306,7 @@ private fun GuideLoadingScreen(onBack: () -> Unit) {
 
 @Composable
 private fun GuideErrorScreen(message: String, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(OneStepBackground).navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(OneStepBackground)) {
         GuideHeader(onBack)
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text(message, style = MaterialTheme.typography.titleMedium, color = OneStepText)
