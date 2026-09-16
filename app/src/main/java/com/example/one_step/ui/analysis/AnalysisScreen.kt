@@ -384,7 +384,10 @@ private fun AudioSummaryButton(isSpeaking: Boolean, onClick: () -> Unit) {
 }
 
 private fun AnalysisResult.toSpeechSummary(): String = buildString {
-    append(tripTitle ?: title)
+    append(title)
+    tripTitle
+        ?.takeIf { it.isNotBlank() && it != title }
+        ?.let { append(". ").append(it).append("에 대한 안내입니다") }
     summary.takeIf { it.isNotBlank() }?.let { append(". ").append(it) }
     actions.take(3).takeIf { it.isNotEmpty() }?.let { actionItems ->
         append(". 해야 할 일은 ")
