@@ -78,6 +78,7 @@ fun GuideScreen(
         GuideSpeechController(
             context = context,
             onPlaybackStateChanged = viewModel::setSpeaking,
+            onError = viewModel::setSpeechError,
         )
     }
     DisposableEffect(speechController) {
@@ -110,6 +111,7 @@ fun GuideScreen(
                     stopSpeech()
                 } else {
                     val action = current.result.actions[current.currentIndex]
+                    viewModel.clearSpeechError()
                     speechController.speak("${action.title}. ${action.description}")
                     viewModel.setSpeaking(true)
                 }
@@ -194,6 +196,16 @@ private fun GuideRunningScreen(
                     Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, tint = OneStepBlue)
                     Spacer(Modifier.width(10.dp))
                     Text(if (state.isSpeaking) "듣는 중…" else "음성으로 듣기", style = MaterialTheme.typography.bodyLarge, color = OneStepBlue, fontWeight = FontWeight.SemiBold)
+                }
+            }
+            state.speechError?.let { message ->
+                Surface(color = Color(0xFFFFEDEC), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = message,
+                        color = Color(0xFFB3261E),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    )
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
